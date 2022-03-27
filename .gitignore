@@ -25,6 +25,7 @@
 *.pdf
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
+paperNotes.bib
 *.bbl
 *.bcf
 *.blg
