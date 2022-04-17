@@ -88,7 +88,9 @@
 % body of paper here - Use proper section commands
 % References should be done using the \cite, \ref, and \label commands
 \section{Introduction}
+Why ICA: 1) In reality, source signals are often corrupted with noise, or in other words, data are composed by mutiple independent source signals. To isolate the signals from different sources are called 'Blind Source Separation' (BSS). Famous example is 'Cocktail party problem'. ICA is widely used in images, sounds, stock market and medicine, can be also viewed as a dimension reduction technique (or filtering operation). ICA is an extension of PCA, where the latter pertains to the second order statistics (covariance matrix of data). ICA optmizes higher-order statistics.
 
+ALgorithms: FastICA, projection pursuit and Infomax. Drawbacks: over-complete or under-complete.
 
 
 
@@ -99,10 +101,15 @@
 %\subsubsection{}
 
 \section{Mathematical Formulation}
-
+1) Optimizing Kurtosis
+2) Minimizing mutual information
+3) Maximum likelihood estimation
 
 \section{Algorithms and Applications}
+1) projection pursuit (kurtotis)
+2) FastICA (minimizing mutual information
 
+3) example: sound single decomposition
 
 
 
@@ -110,7 +117,8 @@
 
 
 \section{Discussions and Conclusions}
-          
+1) review the traditional development from 1990s
+2) recent advances and development from 2000s  
 
 \begin{acknowledgments}
 
