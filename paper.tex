@@ -31,6 +31,8 @@
 % below if necessary.
 %\bibliographystyle{apsrev4-2}
 \usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{bm}
 \usepackage{color}
 \frenchspacing
 %\graphicspath{{~/data/KannanLu/exp623/article/}}
@@ -102,8 +104,50 @@ ALgorithms: FastICA, projection pursuit and Infomax. Drawbacks: over-complete or
 
 \section{Mathematical Formulation}
 0) Proof that gaussian signals cannot be separated (Kannan)
-1) Optimizing Kurtosis (Kannan)
-2) Minimizing mutual information (Mick)
+//
+
+Before we delve into the detailed mathematical formulations, we first define the notations that we will use throughout the whole document. We will use boldface capital letters $\bf{A}$ for matrices, boldface lowercase letters $\bf{a}$ for vectors and ordinary lower case letters $a$ for scalars. We will use subscripts for denoting the components of matrices (i.e. $A_{ij})$ and vectors (i.e. $a_{i}$). Notice that these letters are not in boldface as they mean the specific component, which is just a scalar in $ \rm I\!R$. Superscripts are reserved for indexing different samples. For instance, $m$ samples of vector $\bf{a}$ can be denoted as $\bf{a}$$^{(k)}$ where $k = 1, 2, ..., m$. Following these conventions, we denote the original signal to be $\bf{s}$$^{(i)} \in \rm I\!R^{d}$. We consider the standard setting where the $d$ dimensional signals $\bf{s}$$^{(i)} \in \rm I\!R^{d}$ ($d$ original sources) are mixed and observed by $d$ detectors $\bf{x}$$^{(i)} \in \rm I\!R^{d}$ (i.e. the cocktail party scenario). That is there is a linear map between the $\bf{s}$$^{(i)}$ and $\bf{x}$$^{(i)}$, $\bf{x}$$^{(i)}$ $=$ $\bf{A}$$\bf{s}$$^{(i)}$, where $\bf{A} \in \rm I\!R^{d\times d}$ is known as the mixing matrix. The whole idea of ICA is to learn the inverse of the mixing matrix $\bf{W} = \bf{A}$$^{-1}$ from the observed data $\bf{x}$$^{(i)}$, known as the un-mixing. This can be done in several different ways based on ideas of seperating non-Gaussian signals, and the original signals being independent. We will in this section discuss various mathematical formulations. 
+
+//
+
+First of all, we need to talk about some ambiguities embedded in the symmetry of the problem and justify that if the origianl signals are all Gaussians, they cannot be learned through the un-mixing. 
+
+There are two ambiguities that usually do not affect the practical application, namely the permutation ambiguity and the scaling ambiguity. It is trivial to see that the ordering of the original sources \{$s_{j}$\} is ambiguous. In the case of scaling, if the original signal $\bf{s}$ is scaled by a non-zero constant to be $c\bf{s}$ where $c \neq 0$. Then the mixing matrix $\bf{A}$ can be scaled by $1/c$ and resulting in the same observed data $\bf{x}$$ = \frac{1}{c}\bf{A}$$c\bf{s}$. This scaling ambiguity can be furtherly extended with regard to each component of the original signal. That is, for a particular component $j$, if we scale the component by $c_{j}$ the corrsponding column of the mixing matrix can be scaled by $1/c_{j}$ to have the observed data unchanged (i.e. $x_{i} = \sum_{j}\frac{1}{c_{j}}A_{ij}c_{j}s_{j}$).  
+
+
+
+The other ambiguity that matters for the practical application is that the original sources cannot all be distributed as Gaussians. Or to be more precise, in order to seperate the independent components, we require that the original signals can only have at most one component to be sampled from a Gaussian distribution, i.e. $s_{j}$ $\sim \mathcal{N}(\mu,\,\sigma^{2})$ for at most one $j$. Let's consider the case when all the original independent signals are Gaussians. That is, $s_{j}$ $\sim \mathcal{N}(\mu_{j},\,\sigma_{j}^{2})$ for $j = 1, 2, ..., d$. Then given the mixing matrix $\bf{A}$, we have 
+\begin{equation}
+\mathbb{E}_{\bf{s}}[\bf{x}] = \bf{A}\mathbb{E}[\bf{s}] = \bf{A}\bm{\mu}
+\end{equation}
+ and 
+\begin{equation}
+Cov[\bf{x}] = \mathbb{E}_{\bf{s}}[\bf{As}\bf{s}^t\bf{A}^{t}]-\mathbb{E}_{\bf{s}}[\bf{As}]\mathbb{E}[(\bf{As})^{t}] =  \bf{A}\bm{\Sigma}\bf{A}^{t}-\bf{A}\bf{M}\bf{A}^{t}
+\end{equation} 
+, where $\bf{M}$ and $\bm{\Sigma}$ are diagonal matrices of $\rm I\!R^{d\times d}$ with diagonal elements to be \{$\mu_{j}^{2}$\} and \{$\sigma_{j}^{2}$\}, respectively. Due to the scale ambiguity, this is the same as considering normally distributed signals with unity variance. Since each column $j$ of the mixing matrix $\bf{A}$ can be scaled by $\sigma_{j}$, $\tilde{\bf{A}}_{:j} = \sigma_{j}\bf{A}_{:j}$ and correspondingly the signal needs to be scaled by $1/\sigma_{j}$, $\tilde{s_{j}} = \frac{s_{j}-\mu_{j}}{\sigma_{j}}$ (known as the whitening). Then, 
+\begin{equation}
+Cov[\bf{x}] = \tilde{\bf{A}}\bf{I}_{d\times d}\tilde{\bf{A}}^{t}
+\end{equation}.
+Now, if we consider a rotation $\bf{R} $$\in O(d)$ acting on the scaled (whitened) source signals $\bf{\tilde{s}}$. The mixing matrix then changes to $\tilde{\bf{A}}\bf{R}$. Unpon this rotation, we would observe $\bf{x'}$ as $\bf{x'} = \tilde{\bf{A}}\bf{R}\tilde{\bf{s}}$. $\bf{x'}$ is again normally distributed and has covariance matrix,
+\begin{equation}
+Cov[\bf{x'}] = \tilde{\bf{A}}\bf{R}\bf{I}_{d\times d}\bf{R}^{t}\tilde{\bf{A}}^{t} = \tilde{\bf{A}}\bf{I}_{d\times d}\tilde{\bf{A}}^{t} 
+\end{equation}. This simply means that whether the sources are rotated or not the observed data will be distributed as $\mathcal{N}(0, \tilde{\bf{A}}\tilde{\bf{A}}^{t})$. Thus, because of the rotational symmetry of the multivariate Gaussian distribution, we cannot seperate and obtain the original source signals.
+
+//
+
+1) Optimizing Kurtosis (high-order based moment approach) (Kannan)
+
+The non-Gaussianity thus hints the methodologies used in finding the independent component. Notice that the PCA only finds the uncorrelated components but not necessarily independent. The ICA tries to find independent components where the joint distibutions can be factorized into marginal distributions by investigating into higher-order moments. There are multiple moment-based objective functions have been used along the development of ICA. We will define some of the notations and stick to one of the moment-based objective functions in this paper.  
+
+As we discussed previously, we have the freedom to whiten the observed signals and we will denote the whitened observed data as $\tilde{\bf{x}}$, where each component is $\tilde{x_{j}} = \frac{x_{j}-\mathbb{E}[x_{j}]}{\sigma_{x,j}}$. The skewness, kurtosis and excess kutosis are defined as $$ \gamma(x) := \mathbb{E}[\tilde{x}^{3}], \beta(x) := \mathbb{E}[\tilde{x}^{4}], \kappa(x) := \beta(x)-3 $$.
+The objective function is a convex combination of the squared third and fourth cumulants defined as follows,
+\begin{equation}
+L_{\alpha}(\bf{u}) := \alpha \gamma^{2}(\bf{u}^{t}\tilde{\bf{x}}) + (1-\alpha)\kappa^{2}(\bf{u}^{t}\tilde{\bf{x}})
+\end{equation},
+where $\alpha \in [0, 1]$ and $\bf{u}^{t}\bf{u}$$ = 1$.
+
+
+2) Minimizing mutual information (min KL divergence) (Mick)
 3) Maximum likelihood estimation (Mick)
 
 \section{Algorithms and Applications}
@@ -121,6 +165,7 @@ ALgorithms: FastICA, projection pursuit and Infomax. Drawbacks: over-complete or
 \section{Discussions and Conclusions}
 1) review the traditional development from 1990s
 2) recent advances and development from 2000s  
+3) what happens when there are multiple Gaussian components
 
 \begin{acknowledgments}
 
