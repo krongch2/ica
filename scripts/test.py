@@ -45,7 +45,9 @@ def example_3_3():
         ]).T
     mu = X.mean(axis=0)
     D = X - mu
+    print(D)
     sigma_D = get_cov(D)
+    print(sigma_D)
     lamda, V = la.eigh(sigma_D)
     U = (V @ D.T).T
     sigma_U = get_cov(U)
@@ -62,6 +64,8 @@ def example_3_3():
     # plt.plot(U[:, 0], U[:, 1], 'o')
     plt.plot(Z[:, 0], Z[:, 1], 'o')
     plt.show()
+
+example_3_3()
 
 def pca():
 
@@ -80,8 +84,10 @@ def pca():
         ])
     x = A @ s
     print(x)
-    plt.plot(x[0, :], x[1, :], 'o', mec='white')
+    # plt.plot(x[0, :], x[1, :], 'o', mec='white')
+    lin = np.linspace(1, 30, N)
+    plt.plot(lin, x[1, :])
     plt.show()
 
 
-pca()
+# pca()

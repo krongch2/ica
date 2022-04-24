@@ -31,6 +31,7 @@
 % below if necessary.
 %\bibliographystyle{apsrev4-2}
 \usepackage{graphicx}
+\usepackage{amsmath,amsthm,amssymb,mathtools}
 \usepackage{amsfonts}
 \usepackage{bm}
 \usepackage{color}
@@ -150,10 +151,38 @@ where $\alpha \in [0, 1]$ and $\bf{u}^{t}\bf{u}$$ = 1$.
 2) Minimizing mutual information (min KL divergence) (Mick)
 3) Maximum likelihood estimation (Mick)
 
-\section{Algorithms and Applications}
+\section{Algorithms}
 1) projection pursuit (kurtotis) (Kannan)
-2) FastICA (minimizing mutual information (Mick)
 
+\subsection{FastICA}
+In this method, we maximize the non-Gaussianity given by
+\begin{align}
+J(Y) \propto \{E[G(Y)] - E[G(V)]\}^2,
+\end{align}
+where $Y$ is a random variable of zero mean and unit variance, which can be achieved by whitening the data, and $V$ is a Gaussian variable also of zero mean and unit variance. In function forms of $G_1$ and $G_2$ should not grow too fast to be robust. The following choice of $G$ is proposed by Hyvärinen and Oja.
+\begin{align}
+G_1(u) &= \frac{1}{a_1} \log (\cosh a_1 u). \\
+G_1^{\prime}(u) &= \tanh(a_1 u).
+\end{align}
+We want to find the extrema of $E[G(Y)]$ to maximize $J(Y)$ under the constraints
+\begin{align}
+E[(w^T x)^2] = \| w\|^2 = 1.
+\end{align}
+From the Kuhn--Tucker conditions, the extremum condition is satisfied when
+\begin{align}
+E[x g(w^Tx)] - \beta w &= 0.
+\end{align}
+This equation can be solved by using Newton's method.
+Let $F(w)$ denote the left-hand side of the equation, which we are trying to solve.
+We update the value of $w$ in each iteration according to the following equation.
+\begin{align}
+w_{n+1} &= w_n - \frac{F(w_n)}{F^{\prime}(w_n)} \\
+&= w_n - \frac{E[x g (w_n^T x)] - \beta w_n}{E[g^{\prime}(w_n^T x)] - \beta} \\
+&= \frac{w_n E[g^{\prime}(w_n^T x)] - \beta w_n - E[x g (w_n^T x)] + \beta w_n}{E[g^{\prime}(w_n^T x)] - \beta} \\
+&= \frac{w_n E[g^{\prime}(w_n^T x)] - E[x g (w_n^T x)]}{E[g^{\prime}(w_n^T x)] - \beta}.
+\end{align}
+
+\section{Applications}
 3) example: sound single decomposition
 4) tock price
 5) EGG
