@@ -136,7 +136,7 @@ Cov[\bf{x'}] = \tilde{\bf{A}}\bf{R}\bf{I}_{d\times d}\bf{R}^{t}\tilde{\bf{A}}^{t
 
 //
 
-1) Optimizing Kurtosis (high-order based moment approach) (Kannan)
+
 
 The non-Gaussianity thus hints the methodologies used in finding the independent component. Notice that the PCA only finds the uncorrelated components but not necessarily independent. The ICA tries to find independent components where the joint distibutions can be factorized into marginal distributions by investigating into higher-order moments. There are multiple moment-based objective functions have been used along the development of ICA. We will define some of the notations and stick to one of the moment-based objective functions in this paper.  
 
@@ -147,14 +147,16 @@ L_{\alpha}(\bf{u}) := \alpha \gamma^{2}(\bf{u}^{t}\tilde{\bf{x}}) + (1-\alpha)\k
 \end{equation},
 where $\alpha \in [0, 1]$ and $\bf{u}^{t}\bf{u}$$ = 1$.
 
-
-2) Minimizing mutual information (min KL divergence) (Mick)
-3) Maximum likelihood estimation (Mick)
+1) Optimizing Kurtosis (high-order based moment approach) (Mick)
+2) non-gaussianity  (Mick)
+3) Maximum likelihood estimation (Kannan)
+    - Minimizing mutual information (min KL divergence)
 
 \section{Algorithms}
-1) projection pursuit (kurtotis) (Kannan)
+\subsection{objective function based on maximum likelihood  (Kannan)}
 
 \subsection{FastICA}
+\subsection{alternative objective function, skewness and kurtosis (Kannan)}
 In this method, we maximize the non-Gaussianity given by
 \begin{align}
 J(Y) \propto \{E[G(Y)] - E[G(V)]\}^2,
@@ -186,7 +188,6 @@ w_{n+1} &= w_n - \frac{F(w_n)}{F^{\prime}(w_n)} \\
 3) example: sound single decomposition
 4) tock price
 5) EGG
-
 
 
 
