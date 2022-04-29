@@ -11,10 +11,11 @@ def center(X, standardize=False):
 
 def whiten(X, test=True):
     cov = np.cov(X)
+    print(cov)
     lamda, V = la.eigh(cov)
     lamda_inv = np.sqrt(la.inv(np.diag(lamda)))
     Z = lamda_inv @ V.T @ X
-
+    print(np.cov(Z))
     if test:
         tests.test_identity(np.cov(Z))
 
@@ -40,10 +41,12 @@ def ica(X, cycles=1000, tol=1e-5, test=False):
                 tests.test_gram_schmidt(w_new, W, i)
 
             w_new -= W[:i] @ w_new @ W[:i]
-            w_new /= (w_new ** 2).sum()**0.5
-            distance = np.abs(np.abs((w * w_new).sum()) - 1)
+            w_new /= (w_new**2).sum()**0.5
+            distance = np.abs(np.abs(w @ w_new) - 1)
             distances.append(distance)
             w = w_new
+
+            # check why it doesn't stop
             if distance < tol:
                 break
         W[i, :] = w

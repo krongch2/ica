@@ -1,3 +1,17 @@
+import youtube_dl
+
+def download_sources():
+
+    ydl_opts = {}
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download(['https://www.youtube.com/watch?v=wuvXCC9xy48'])
+        ydl.download(['https://www.youtube.com/watch?v=ea8rkQFXEr4'])
+
+
+
+
+
+
 # def mix_sources(mixtures, apply_noise=False):
 #     for i in range(len(mixtures)):
 #         max_val = np.max(mixtures[i])
@@ -19,3 +33,4 @@
 #     wavfile.write('out1.wav', sampling_rate, S[0])
 #     wavfile.write('out2.wav', sampling_rate, S[1])
 
+if __name__ == '__main__':

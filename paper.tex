@@ -185,12 +185,29 @@ w_{n+1} &= w_n - \frac{F(w_n)}{F^{\prime}(w_n)} \\
 \end{align}
 
 \section{Applications}
+1) sklearn example
 3) example: sound single decomposition
-4) tock price
-5) EGG
+4) stock price
+5) EEG
+% (https://towardsdatascience.com/independent-component-analysis-ica-a3eba0ccec35)
+
+\section{How to check the robustness and }
+
+1) check if the performance matrix is identity (Te-won Lee, p. 51)
+\begin{align}
+W A &= I.
+\end{align}
+
+2) check how fast w changes (ICA_projectionPursuit1612.05445.pdf, p. 12)
 
 
+\section{PCA vs. ICA}
+% (https://www.cs.ubc.ca/~jnutini/documents/mlrg_pca.pdf)
 
+\section{what if two of the sources are dependent}
+s3 = signal.sawtooth(2*np.pi*time) # saw tooth signal
+s4 = s1 + s2
+s5 = s1 - s2
 
 \section{Discussions and Conclusions}
 1) review the traditional development from 1990s
