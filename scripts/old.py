@@ -91,3 +91,14 @@ def pca():
 
 
 # pca()
+
+def data2():
+    X = np.array([
+        [1, 1, 2, 0, 5, 4, 5, 3],
+        [3, 2, 3, 3, 4, 5, 5, 4]
+        ])
+    return X
+
+def get_cov(X):
+    return (X @ X.T)/(X.shape[1] - 1)
+
