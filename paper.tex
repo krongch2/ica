@@ -93,6 +93,12 @@
 \section{Introduction}
 Why ICA: 1) In reality, source signals are often corrupted with noise, or in other words, data are composed by mutiple independent source signals. To isolate the signals from different sources are called 'Blind Source Separation' (BSS). Famous example is 'Cocktail party problem'. ICA is widely used in images, sounds, stock market and medicine, can be also viewed as a dimension reduction technique (or filtering operation). ICA is an extension of PCA, where the latter pertains to the second order statistics (covariance matrix of data). ICA optmizes higher-order statistics.
 
+Several necessay conditions for ICA: 
+1) The number of sensors is larger than number of sources. This ensures that the mixing matrix is full rank.
+2) THe sources at each sample (time) are mutually independent.
+3) At most one source is normally distributed.
+
+
 ALgorithms: FastICA, projection pursuit and Infomax. Drawbacks: over-complete or under-complete.
 
 
@@ -136,7 +142,7 @@ Cov[\bf{x'}] = \tilde{\bf{A}}\bf{R}\bf{I}_{d\times d}\bf{R}^{t}\tilde{\bf{A}}^{t
 
 //
 
-
+1) Non-Gaussianity maximization approach
 
 The non-Gaussianity thus hints the methodologies used in finding the independent component. Notice that the PCA only finds the uncorrelated components but not necessarily independent. The ICA tries to find independent components where the joint distibutions can be factorized into marginal distributions by investigating into higher-order moments. There are multiple moment-based objective functions have been used along the development of ICA. We will define some of the notations and stick to one of the moment-based objective functions in this paper.  
 
@@ -147,10 +153,20 @@ L_{\alpha}(\bf{u}) := \alpha \gamma^{2}(\bf{u}^{t}\tilde{\bf{x}}) + (1-\alpha)\k
 \end{equation},
 where $\alpha \in [0, 1]$ and $\bf{u}^{t}\bf{u}$$ = 1$.
 
-1) Optimizing Kurtosis (high-order based moment approach) (Mick)
-2) non-gaussianity  (Mick)
-3) Maximum likelihood estimation (Kannan)
-    - Minimizing mutual information (min KL divergence)
+%1) Optimizing Kurtosis (high-order based moment approach) (Mick)
+%2) non-gaussianity  (Mick)
+%3) Maximum likelihood estimation (Kannan)
+%    - Minimizing mutual information (min KL divergence)
+
+2) Minimize mutual information, max negentropy, and maximum likelihood
+
+Apart fomr the non-Gaussianity based approaches, there are several information theoetic formulations. Here in this section, we will review all different information theoretic frameworks and show that essentially they are equivalent. Then we will talk about the learning rules for these theoretical formulations. 
+
+We can first consider the basic idea of minimizing mutual information, which is defined as the KL divergence of the multivariate distribution of the observed data $\bf{x}$ and product of all its marginal distributions, i.e. 
+\begin{equation}
+I(\bf{x}) = \sum_{\bf{x}}p(\bf{x})\log\frac{p(\bf{x})}{\prod_{i}p_{i}(x_{i})}
+\end{equation}. $I(\bf{x})$ is non-negative and is 0 if an only if the $\bf{x}$ are independent. Within this framework, several different approaches have been formulated in history. One of them is a key finding in neural networks, that is maximizing information between inputs $\bf{x}$ and outputs $\bf{y}$ implies that the output distributions are factorized, thus minimizes the mutual information in the outputs $\bf{y}$. Maximizing the output entropy is to maximize $H(\bf{y}) = \sum_{i}H(y_{i}) - I(\bf{y})$. In a neural network, there is a non-linear activation function that generates the output $\bf{y} = g(\bf{u})$. This nonlinearity indeed brings the information of higher order statistics into the optimization process.   
+
 
 \section{Algorithms}
 \subsection{objective function based on maximum likelihood  (Kannan)}
