@@ -149,9 +149,9 @@ The non-Gaussianity thus hints the methodologies used in finding the independent
 As we discussed previously, we have the freedom to whiten the observed signals and we will denote the whitened observed data as $\tilde{\bf{x}}$, where each component is $\tilde{x_{j}} = \frac{x_{j}-\mathbb{E}[x_{j}]}{\sigma_{x,j}}$. The skewness, kurtosis and excess kutosis are defined as $$ \gamma(x) := \mathbb{E}[\tilde{x}^{3}], \beta(x) := \mathbb{E}[\tilde{x}^{4}], \kappa(x) := \beta(x)-3 $$.
 The objective function is a convex combination of the squared third and fourth cumulants defined as follows,
 \begin{equation}
-L_{\alpha}(\bf{u}) := \alpha \gamma^{2}(\bf{u}^{t}\tilde{\bf{x}}) + (1-\alpha)\kappa^{2}(\bf{u}^{t}\tilde{\bf{x}})
+L_{\alpha}(\bf{u}) := \alpha \gamma^{2}(\bf{w}^{t}\tilde{\bf{x}}) + (1-\alpha)\kappa^{2}(\bf{w}^{t}\tilde{\bf{x}})
 \end{equation},
-where $\alpha \in [0, 1]$ and $\bf{u}^{t}\bf{u}$$ = 1$.
+where $\alpha \in [0, 1]$ and $\bf{w}^{t}\bf{w}$$ = 1$.
 
 %1) Optimizing Kurtosis (high-order based moment approach) (Mick)
 %2) non-gaussianity  (Mick)
@@ -165,7 +165,15 @@ Apart fomr the non-Gaussianity based approaches, there are several information t
 We can first consider the basic idea of minimizing mutual information, which is defined as the KL divergence of the multivariate distribution of the observed data $\bf{x}$ and product of all its marginal distributions, i.e. 
 \begin{equation}
 I(\bf{x}) = \sum_{\bf{x}}p(\bf{x})\log\frac{p(\bf{x})}{\prod_{i}p_{i}(x_{i})}
-\end{equation}. $I(\bf{x})$ is non-negative and is 0 if an only if the $\bf{x}$ are independent. Within this framework, several different approaches have been formulated in history. One of them is a key finding in neural networks, that is maximizing information between inputs $\bf{x}$ and outputs $\bf{y}$ implies that the output distributions are factorized, thus minimizes the mutual information in the outputs $\bf{y}$. Maximizing the output entropy is to maximize $H(\bf{y}) = \sum_{i}H(y_{i}) - I(\bf{y})$. In a neural network, there is a non-linear activation function that generates the output $\bf{y} = g(\bf{u})$. This nonlinearity indeed brings the information of higher order statistics into the optimization process.   
+\end{equation}. $I(\bf{x})$ is non-negative and is 0 if and only if the $\bf{x}$ are independent. Within this framework, several different information theoretic approaches have been formulated in history. 
+
+One of them is a key finding in neural networks, that is, maximizing information between inputs $\bf{x}$ and outputs $\bf{y}$ implies that the output distributions are factorized, thus minimizes the mutual information in the outputs $\bf{y}$. Maximizing the output entropy is to maximize $H(\bf{y}) = \sum_{i}H(y_{i}) - I(\bf{y})$. The maximum is obtained if marginal distribution of each $y_{i}$ is uniform and independent. This implies that the activation function in the neural network $y_{i} = g(\bf{w}_{i}^{t}\bf{x})$ is a cdf of the source distribution $s_{i}$. 
+
+In a neural network, there is a non-linear activation function that generates the output $\bf{y} = g(\bf{u})$. This nonlinearity indeed brings the information of higher order statistics into the optimization process. 
+
+Another way to formulate this is to maximize the negentropy, which is the KL divergence between $p(\bf{W}\bf{x})$ and Gaussian distribution $p_{G}(\bf{W}\bf{x})$.  
+
+Lastly, for the maximum likelihood estimation approach, we want to maximize the log likelihood over all samples observed upon choosing a parametrized distribution.   
 
 
 \section{Algorithms}
@@ -208,22 +216,23 @@ w_{n+1} &= w_n - \frac{F(w_n)}{F^{\prime}(w_n)} \\
 % (https://towardsdatascience.com/independent-component-analysis-ica-a3eba0ccec35)
 
 \section{How to check the robustness and }
+% Amari metric, ref "ELements of Statistical Learning", p.570
 
-1) check if the performance matrix is identity (Te-won Lee, p. 51)
+%1) check if the performance matrix is identity (Te-won Lee, p. 51)
 \begin{align}
 W A &= I.
 \end{align}
 
-2) check how fast w changes (ICA_projectionPursuit1612.05445.pdf, p. 12)
+%2) check how fast w changes (ICA_projectionPursuit1612.05445.pdf, p. 12)
 
 
 \section{PCA vs. ICA}
 % (https://www.cs.ubc.ca/~jnutini/documents/mlrg_pca.pdf)
 
 \section{what if two of the sources are dependent}
-s3 = signal.sawtooth(2*np.pi*time) # saw tooth signal
-s4 = s1 + s2
-s5 = s1 - s2
+%s3 = signal.sawtooth(2*np.pi*time) # saw tooth signal
+%s4 = s1 + s2
+%s5 = s1 - s2
 
 \section{Discussions and Conclusions}
 1) review the traditional development from 1990s
