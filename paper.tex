@@ -160,18 +160,34 @@ where $\alpha \in [0, 1]$ and $\bf{w}^{t}\bf{w}$$ = 1$.
 
 2) Minimize mutual information, max negentropy, and maximum likelihood
 
-Apart fomr the non-Gaussianity based approaches, there are several information theoetic formulations. Here in this section, we will review all different information theoretic frameworks and show that essentially they are equivalent. Then we will talk about the learning rules for these theoretical formulations. 
+Apart fomr the non-Gaussianity based approaches, there are several information theoetic formalisms. Here in this section, we will review all different information theoretic frameworks and show that essentially they are equivalent. Then we will talk about the learning rules for these theoretical formulations. 
 
 We can first consider the basic idea of minimizing mutual information, which is defined as the KL divergence of the multivariate distribution of the observed data $\bf{x}$ and product of all its marginal distributions, i.e. 
 \begin{equation}
 I(\bf{x}) = \sum_{\bf{x}}p(\bf{x})\log\frac{p(\bf{x})}{\prod_{i}p_{i}(x_{i})}
 \end{equation}. $I(\bf{x})$ is non-negative and is 0 if and only if the $\bf{x}$ are independent. Within this framework, several different information theoretic approaches have been formulated in history. 
 
-One of them is a key finding in neural networks, that is, maximizing information between inputs $\bf{x}$ and outputs $\bf{y}$ implies that the output distributions are factorized, thus minimizes the mutual information in the outputs $\bf{y}$. Maximizing the output entropy is to maximize $H(\bf{y}) = \sum_{i}H(y_{i}) - I(\bf{y})$. The maximum is obtained if marginal distribution of each $y_{i}$ is uniform and independent. This implies that the activation function in the neural network $y_{i} = g(\bf{w}_{i}^{t}\bf{x})$ is a cdf of the source distribution $s_{i}$. 
+One of them is a key finding in neural networks, that is, maximizing information between inputs $\bf{x}$ and outputs $\bf{y}$ implies that the output distributions are factorized, thus minimizes the mutual information in the outputs $\bf{y}$. Maximizing the information between inputs and outputs is to maximize the output joint entropy $H(\bf{y}) = \sum_{i}H(y_{i}) - I(\bf{y})$, where $I(\bf{y}) = \sum_{\bf{y}}p(\bf{y})\log\frac{p(\bf{y})}{\prod_{i}p_{i}(y_{i})}$ is the mutual information in the outputs $\bf{y}$. The mutual information is non-negative and is zero if and only if $\bf{y}$ are marginalized. Recall that in neural network, the output is given by the nonlinearity $y_{i} = g_{i}(\bf{w}_{i}^{t}\bf{x})$ $:= g_{i}(u_{i})$, thus $p(y_{i}) = \frac{p(u_{i})}{|\frac{\partial g_{i}}{\partial u_{i}}|}$. The maximum is therefore obtained by considering the gradient,
+\begin{equation}
+\frac{\partial H(\bf{y})}{\partial \bf{W}} = \frac{\partial (-I(\bf{y}))}{\partial \bf{W}} - \frac{\partial}{\partial \bf{W}}\sum_{i} \mathbb{E}[\log \frac{p(u_{i})}{|\frac{\partial g_{i}}{\partial u_{i}}|} ] 
+\end{equation}
+ This implies that the nonlinear function $g_{i}$ in the neural network $y_{i} = g(\bf{w}_{i}^{t}\bf{x})$ is a cdf of the source distribution $s_{i}$ in order to kill the second term. Together with the constraint that the outputs are marginalized, this gradient is zero. Therefore, a good estimation of the cdf of the source signal improves drastically the performance of ICA.
 
-In a neural network, there is a non-linear activation function that generates the output $\bf{y} = g(\bf{u})$. This nonlinearity indeed brings the information of higher order statistics into the optimization process. 
+%In a neural network, there is a non-linear activation function that generates the output $\bf{y} = g(\bf{u})$. This nonlinearity indeed brings the information of higher order statistics into the optimization process. 
 
-Another way to formulate this is to maximize the negentropy, which is the KL divergence between $p(\bf{W}\bf{x})$ and Gaussian distribution $p_{G}(\bf{W}\bf{x})$.  
+Another way to formulate this is to maximize the negentropy $J(u_{i})$, which is the KL divergence $D(p(u_{i})||p_{G}(u_{i}))$ between $p(u_{i})$ and Gaussian distribution $p_{G}(u_{i})$ with the same mean and covariance as $p(u_{i})$. Requiring that the $\bf{u}$ can be factorized and decorrelated, the sum of negentropies can be written as 
+\begin{align}
+\sum_{i}J(u_{i}) &= \sum_{i}D(p(u_{i})||p_{G}(u_{i})) \\
+&= \sum_{i}p(u_{i})\log\frac{p(u_{i})}{p_{G}(u_{i})} \\
+&= \sum_{\bf{u}}p(\bf{u}) \log\frac{\prod_{i}p(u_{i})}{\prod_{i}p_{G}(u_{i})} \\
+&= \sum_{\bf{u}}p(\bf{u}) \log\frac{\prod_{i}p(u_{i})}{p_{G}(\bf{u}_{i})} \\
+&= \sum_{\bf{u}}p(\bf{u}) \log\frac{\prod_{i}p(u_{i})}{p(\bf{u})} + \sum_{\bf{u}}p(\bf{u})\log\frac{p(\bf{u})}{p_{G}(\bf{u})} \\
+&= D(\prod_{i}p(u_{i})||p(\bf{u})) + J(\bf{u}) \\
+&= -I(\bf{u}) + J(\bf{u}) \\
+& = -I(\bf{u}) - H(\bf{u}) - \sum_{\bf{u}}p(\bf{u})\log p_{G}(\bf{u}) \\
+& = -I(\bf{u}) - H(\bf{x}) - \log(|det(\bf{W})|) - \frac{1}{2}\log((2\pi e)^{d}det(<\bf{u}, \bf{u}^{t}>))\\
+&= -I(\bf{u}) - H(\bf{x}) - \frac{1}{2}\log((2\pi e)^{d})
+\end{align}. In the derivation, the $\bf{u}$ are uncorrelated so the covariance matrix is identity. Therefore, maximizing the negentropy is equivalent to minimizing mutual information in $\bf{u} = \bf{W}\bf{x}$. The minimum condition is given by 
 
 Lastly, for the maximum likelihood estimation approach, we want to maximize the log likelihood over all samples observed upon choosing a parametrized distribution.   
 
