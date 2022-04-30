@@ -37,6 +37,32 @@
 \usepackage{color}
 \frenchspacing
 %\graphicspath{{~/data/KannanLu/exp623/article/}}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+% \definecolor{backcolour}{rgb}{0.18,0.18,0.18}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
 
 \begin{document}
 
@@ -207,15 +233,35 @@ w_{n+1} &= w_n - \frac{F(w_n)}{F^{\prime}(w_n)} \\
 &= \frac{w_n E[g^{\prime}(w_n^T x)] - \beta w_n - E[x g (w_n^T x)] + \beta w_n}{E[g^{\prime}(w_n^T x)] - \beta} \\
 &= \frac{w_n E[g^{\prime}(w_n^T x)] - E[x g (w_n^T x)]}{E[g^{\prime}(w_n^T x)] - \beta}.
 \end{align}
+\section{Example}
+We implement FastICA according to the formalism described in the previous section.
+The algorithm is applied to a following set of signal functions.
+\begin{align}
+s_1 &= \sin(2 t). \\
+s_2 &= \mathrm{sign} [\sin(3 t)]. \\
+s_3 &= \frac{1}{2\pi} (t~\mathrm{mod}~2\pi).
+\end{align}
+The mixing matrix is taken to be
+\begin{align}
+A &= \begin{bmatrix}
+1 & 1 & 1 \\
+0.5 & 2 & 1 \\
+1.5 & 1 & 2
+\end{bmatrix}.
+\end{align}
+The result from our implementation and FastICA are shown in Fig.~\ref{fig:sklearn}.
+\begin{figure}
+\includegraphics{scripts/sklearn.pdf}
+\caption{\label{fig:sklearn} FastICA results using our code and \lstinline{sklearn.decomposition.FastICA}}
+\end{figure}
 
 \section{Applications}
-1) sklearn example
 3) example: sound single decomposition
-4) stock price
-5) EEG
-% (https://towardsdatascience.com/independent-component-analysis-ica-a3eba0ccec35)
+4) EEG % (https://towardsdatascience.com/independent-component-analysis-ica-a3eba0ccec35)
+5) stock price
 
-\section{How to check the robustness and }
+
+\section{How to check the robustness and convergence}
 % Amari metric, ref "ELements of Statistical Learning", p.570
 
 %1) check if the performance matrix is identity (Te-won Lee, p. 51)

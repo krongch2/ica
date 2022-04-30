@@ -45,7 +45,7 @@ def ica(X, cycles=1000, tol=1e-5, test=False):
             distance = np.abs(np.abs(w @ w_new) - 1)
             distances.append(distance)
             w = w_new
-
+            print(distance)
             # check why it doesn't stop
             if distance < tol:
                 break

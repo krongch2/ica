@@ -1,16 +1,18 @@
-import youtube_dl
+from matplotlib import pyplot as plt
+import numpy as np
+import sounddevice
+from scipy.io import wavfile
 
-def download_sources():
+import fast_ica
 
-    ydl_opts = {}
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download(['https://www.youtube.com/watch?v=wuvXCC9xy48'])
-        ydl.download(['https://www.youtube.com/watch?v=ea8rkQFXEr4'])
+# import youtube_dl
 
+# def download_sources():
 
-
-
-
+#     ydl_opts = {}
+#     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+#         ydl.download(['https://www.youtube.com/watch?v=wuvXCC9xy48'])
+#         ydl.download(['https://www.youtube.com/watch?v=ea8rkQFXEr4'])
 
 # def mix_sources(mixtures, apply_noise=False):
 #     for i in range(len(mixtures)):
@@ -33,4 +35,16 @@ def download_sources():
 #     wavfile.write('out1.wav', sampling_rate, S[0])
 #     wavfile.write('out2.wav', sampling_rate, S[1])
 
+def play(sound, fs=11025):
+    for i in range(sound.shape[0]):
+        print(f'playing mixed track {i}')
+        sounddevice.play(sound[i, :], fs, blocking=True)
+
+def load():
+    X = np.loadtxt('mix.dat').T
+    play(X)
+    S_predicted, distances = fast_ica.ica(X, cycles=1000)
+    play(S_predicted)
+
 if __name__ == '__main__':
+    load()
