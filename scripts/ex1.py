@@ -6,22 +6,20 @@ from sklearn.decomposition import FastICA, PCA
 
 import fast_ica
 
-plt.rc('font', family='serif')
-plt.rc('text', usetex=True)
+# plt.rc('font', family='serif')
+# plt.rc('text', usetex=True)
 
 def load_data():
     N = 2000
     time = np.linspace(0, 8, N)
-    s1 = np.sin(2*time) # sinusoidal
-    s2 = np.sign(np.sin(3*time)) # square signal
-    s3 = signal.sawtooth(2*np.pi*time) # saw tooth signal
+    s1 = 5*np.sin(2*time) # sinusoidal
+    s2 = 20*np.sign(np.sin(3*time)) # square signal
+    s3 = 100*signal.sawtooth(2*np.pi*time) + 50# saw tooth signal
     s4 = s1 + s2
     s5 = s1 - s2
     s6 = np.cos(2*time)
 
     S = np.array([s1, s2, s3])
-    S /= S.std(axis=1, keepdims=True)
-    # S = np.array([s3, s4, s5])
     A = np.array([
         [1, 1, 1],
         [0.5, 2, 1],
@@ -30,61 +28,54 @@ def load_data():
     X = A @ S
     return X, S
 
-def plot_sources(X, S, S_predicted, S_predicted_std, S_sklearn, S_pca):
-    fig, ax = plt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
+def plot_sources(sources, titles, output=None):
 
-    for x in X:
-        ax[0, 0].plot(x)
-        ax[0, 0].set_title('Mixture signals ($X$)')
-        ax[0, 0].set(ylabel='Amplitude')
-
-    for s in S:
-        ax[0, 1].plot(s)
-        ax[0, 1].set_title("Original sources ($S$)")
-
-    for S_predicted in S_predicted:
-        ax[1, 0].plot(S_predicted)
-        ax[1, 0].set_title("Predicted sources ($W X$) [Our FastICA]")
-        ax[1, 0].set(xlabel='Time', ylabel='Amplitude')
-
-    for S_predicted_std in S_predicted_std:
-        ax[1, 1].plot(S_predicted_std)
-        ax[1, 1].set_title("Predicted sources ($W X$) [Our FastICA, std]")
-        ax[1, 1].set(xlabel='Time', ylabel='Amplitude')
-
-    # for S_sklearn in S_sklearn:
-    #     ax[1, 1].plot(S_sklearn)
-    #     ax[1, 1].set_title("Predicted sources ($W X$) [Sklearn FastICA]")
-    #     ax[1, 1].set(xlabel='Time')
-
-    # for S_pca in S_pca:
-    #     ax[1, 2].plot(S_pca)
-    #     ax[1, 2].set_title("Predicted sources ($W X$) [Sklearn PCA]")
+    n = len(sources)
+    fig, ax = plt.subplots(nrows=n, ncols=1, sharex=True, sharey=False)
+    for i in range(n):
+        for source in sources[i]:
+            ax[i].plot(source)
+        ax[i].set_title(titles[i], fontsize=8)
 
     fig.tight_layout()
-    # plt.show()
-    plt.savefig('all.pdf', bbox_inches='tight')
+    if output is None:
+        plt.show()
+    else:
+        plt.savefig(output, bbox_inches='tight')
 
 if __name__ == '__main__':
+
     np.random.seed(0)
     X, S = load_data()
-    # S_predicted, W, _ = fast_ica.ica(X, cycles=100, standardize=False)
-
-    # S_predicted_std, W_std, _ = fast_ica.ica(X, cycles=100, standardize=True)
-
-    # print(W)
-    # print(W_std)
-    # sd = X.std(axis=1, ddof=0)
-    # print(sd)
-    # print(W_std*sd)
-    sklearn_ica = FastICA(n_components=3)
+    S_predicted, W, K, _ = fast_ica.ica(X)
+    tt= S_predicted.T @ la.inv(W @ K.T).T
+    print(X.mean(axis=1))
+    print(tt.shape)
+    # mean = np.einsum('ij,i->ij', np.ones(X.shape), X.mean(axis=1, keepdims=True))
+    X_new = ( S_predicted.T @ la.inv(W @ K.T).T + X.mean(axis=1)).T
+    sklearn_ica = FastICA()
     S_sklearn = sklearn_ica.fit_transform(X.T).T
-    # S_sklearn = fast_ica.center(S_sklearn, standardize=True)
-    W = sklearn_ica.mixing_.T
+    # S_sklearn = fast_ica.whiten(S_sklearn)
     print(sklearn_ica.mean_)
-    mean = np.einsum('ij,i->ij', np.ones(X.shape), sklearn_ica.mean_)
-    # print(la.inv(W) @ S_sklearn + mean)
-    X_new = la.inv(W) @ S_sklearn + mean
-    X_new = fast_ica.center(X_new, standardize=True)
-    S_pca = PCA(n_components=3).fit_transform(X.T).T
-    plot_sources(X, S, S_sklearn, X_new, X_new, S_pca)
+    W_sklearn = sklearn_ica.mixing_
+    X_new_sklearn = (S_sklearn.T @ W_sklearn.T + sklearn_ica.mean_).T
+
+    source_title = [
+        (S, 'Original sources ($S$)'),
+        (X, 'Mixture signals ($X$)'),
+        (fast_ica.whiten(X), 'Whiten $X$'),
+        (S_predicted, 'Predicted $S$ [Our FastICA]'),
+        (X_new, 'Retrieved $X = W^{-1} S_{\\mathrm{predicted}}$ [Our FastICA]'),
+        # (S_sklearn, 'Predicted $S$ [Sklearn FastICA]'),
+        # (X_new_sklearn, 'Retrieved $X = W^{-1} S_{\\mathrm{predicted}}$ [Sklearn FastICA]'),
+        ]
+    sources, titles = zip(*source_title)
+    plot_sources(sources, titles)
+    exit()
+
+    # S_sklearn = fast_ica.center(S_sklearn, standardize=True)
+    # mean = np.einsum('ij,i->ij', np.ones(X.shape), sklearn_ica.mean_)
+    # print(mean)
+    # print(S_sklearn.shape)
+    S_pca = PCA().fit_transform(X.T).T
+

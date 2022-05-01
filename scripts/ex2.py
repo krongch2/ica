@@ -11,8 +11,8 @@ def play(sound, fs=11025):
 
 def load():
     X = np.loadtxt('mix.dat').T
-    play(X)
-    S_predicted, distances = fast_ica.ica(X, cycles=1000, standardize=False)
+    # play(X)
+    S_predicted, W, distances = fast_ica.ica(X, cycles=1000, standardize=False)
     play(S_predicted)
 
 if __name__ == '__main__':
