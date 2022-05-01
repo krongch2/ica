@@ -104,7 +104,7 @@
 \date{\today}
 
 \begin{abstract}
-
+Indenpendent component analysis (ICA) is an unsupervised learning technique that is widely used in extracting independent factors in image, sound and medical signals. In this document, we review the basic notions of the ICA including mathematical formulations and detailed algorithms. We also implement different algorithms based on higher-order statistics and information theoretic approaches. These algorithms are applied to sound signal disentanglement and EEG blinking signal removal with success.     
 \end{abstract}
 
 \maketitle
@@ -138,7 +138,7 @@ The other ambiguity that matters for the practical application is that the origi
 \begin{equation}
 \mathbb{E}_{\bf{s}}[\bf{x}] = \bf{A}\mathbb{E}[\bf{s}] = \bf{A}\bm{\mu}
 \end{equation}
- and 
+and 
 \begin{equation}
 Cov[\bf{x}] = \mathbb{E}_{\bf{s}}[\bf{As}\bf{s}^t\bf{A}^{t}]-\mathbb{E}_{\bf{s}}[\bf{As}]\mathbb{E}[(\bf{As})^{t}] =  \bf{A}\bm{\Sigma}\bf{A}^{t}-\bf{A}\bf{M}\bf{A}^{t}
 \end{equation} 
@@ -178,11 +178,9 @@ I(\bf{x}) = \sum_{\bf{x}}p(\bf{x})\log\frac{p(\bf{x})}{\prod_{i}p_{i}(x_{i})}.
 
 One of them is a key finding in neural networks, that is, maximizing information between inputs $\bf{x}$ and outputs $\bf{y}$ implies that the output distributions are factorized, thus minimizes the mutual information in the outputs $\bf{y}$. Maximizing the information between inputs and outputs is to maximize the output joint entropy $H(\bf{y}) = \sum_{i}H(y_{i}) - I(\bf{y})$, where $I(\bf{y}) = \sum_{\bf{y}}p(\bf{y})\log\frac{p(\bf{y})}{\prod_{i}p_{i}(y_{i})}$ is the mutual information in the outputs $\bf{y}$. The mutual information is non-negative and is zero if and only if $\bf{y}$ are marginalized. Recall that in neural network, the output is given by the nonlinearity $y_{i} = g_{i}(\bf{w}_{i}^{t}\bf{x})$ $:= g_{i}(u_{i})$, thus $p(y_{i}) = \frac{p(u_{i})}{|\frac{\partial g_{i}}{\partial u_{i}}|}$. The maximum is therefore obtained by considering the gradient,
 \begin{equation}
-\frac{\partial H(\bf{y})}{\partial \bf{W}} = \frac{\partial (-I(\bf{y}))}{\partial \bf{W}} - \frac{\partial}{\partial \bf{W}}\sum_{i} \mathbb{E}[\log \frac{p(u_{i})}{|\frac{\partial g_{i}}{\partial u_{i}}|} ] 
+\frac{\partial H(\bf{y})}{\partial \bf{W}} = \frac{\partial (-I(\bf{y}))}{\partial \bf{W}} -\frac{\partial}{\partial \bf{W}}\sum_{i} \mathbb{E}[\log \frac{p(u_{i})}{|\frac{\partial g_{i}}{\partial u_{i}}|} ]. 
 \end{equation}
- This implies that the nonlinear function $g_{i}$ in the neural network $y_{i} = g(\bf{w}_{i}^{t}\bf{x})$ is a cdf of the source distribution $s_{i}$ in order to kill the second term. Together with the constraint that the outputs are marginalized, this gradient is zero. Therefore, a good estimation of the cdf of the source signal improves drastically the performance of ICA. Notice that, if $I(\bf{y}) = 0$, the $\bf{u} = \bf{W}\bf{x}$ should also satisfy $I(\bf{u}) = 0$ as $g_{i}$ is an invertible monotonic function. Hence, the neural network approach can be eventually reduced to minimizing the mutual information $I(\bf{u})$.
-
-%In a neural network, there is a non-linear activation function that generates the output $\bf{y} = g(\bf{u})$. This nonlinearity indeed brings the information of higher order statistics into the optimization process. 
+This implies that the nonlinear function $g_{i}$ in the neural network $y_{i} = g(\bf{w}_{i}^{t}\bf{x})$ is a cdf of the source distribution $s_{i}$ in order to kill the second term. Together with the constraint that the outputs are marginalized, this gradient is zero. Therefore, a good estimation of the cdf of the source signal improves drastically the performance of ICA. Notice that, if $I(\bf{y}) = 0$, the $\bf{u} = \bf{W}\bf{x}$ should also satisfy $I(\bf{u}) = 0$ as $g_{i}$ is an invertible monotonic function. Hence, the neural network approach can be eventually reduced to minimizing the mutual information $I(\bf{u})$.
 
 Another way to formulate this is to maximize the negentropy $J(u_{i})$, which is the KL divergence $D(p(u_{i})||p_{G}(u_{i}))$ between $p(u_{i})$ and Gaussian distribution $p_{G}(u_{i})$ with the same mean and covariance as $p(u_{i})$. Recall that the Gaussian distribution has maximum entropy constrained with the mean and covariance. The negentropy thus measures non-Gaussianity. Requiring that the $\bf{u}$ can be factorized and decorrelated, the sum of negentropies can be written as 
 \begin{align}
@@ -234,7 +232,11 @@ w_{n+1} &= w_n - \frac{F(w_n)}{F^{\prime}(w_n)} \\
 &= \frac{w_n E[g^{\prime}(w_n^T x)] - E[x g (w_n^T x)]}{E[g^{\prime}(w_n^T x)] - \beta}.
 \end{align}
 \subsection{Information theoretic approach}
-
+Based on what has been discussed in the previous section, we can approximate the source signal distribution with a parametrized pdf. There are multiple choices here tailored to different problems. A default choice is to assume the cdf of the source signal can be approximated by a sigmoid function $g(s_{i}) = \frac{1}{1+e^{-s_{s}}}$, thus the pdf is $p(s_{i}) = g'(s_{i})$. Notice that this pdf is super-Gaussian. This means that ICA based on this pdf works well when the distribution of original sources have heavy tails and sharp peak around center. Recall the log-likelihood (without normalization), 
+\begin{align}
+l(\bf{W}) &= \sum_{j=1}^{N}(\sum_{i=1}^{d}\log(\hat{p}_{s}(\bf{w}_{i}\bf{x}^{(j)}))+\log|\bf{W}|) \\
+&= \sum_{j=1}^{N}(\sum_{i=1}^{d}\log(g'(\bf{w}_{i}\bf{x}^{(j)}))+\log|\bf{W}|)
+\end{align}    
 \section{Applications}
 We implement FastICA according to the formalism described in the previous section.
 The algorithm is applied to a following set of signal functions.
