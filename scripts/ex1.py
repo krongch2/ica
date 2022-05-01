@@ -31,7 +31,7 @@ def load_data():
 def plot_sources(sources, titles, output=None):
 
     n = len(sources)
-    fig, ax = plt.subplots(nrows=n, ncols=1, sharex=True, sharey=False)
+    fig, ax = plt.subplots(nrows=n, ncols=1, figsize=(7, 7), sharex=True, sharey=False)
     for i in range(n):
         for source in sources[i]:
             ax[i].plot(source)
@@ -44,38 +44,24 @@ def plot_sources(sources, titles, output=None):
         plt.savefig(output, bbox_inches='tight')
 
 if __name__ == '__main__':
-
     np.random.seed(0)
     X, S = load_data()
-    S_predicted, W, K, _ = fast_ica.ica(X)
-    tt= S_predicted.T @ la.inv(W @ K.T).T
-    print(X.mean(axis=1))
-    print(tt.shape)
-    # mean = np.einsum('ij,i->ij', np.ones(X.shape), X.mean(axis=1, keepdims=True))
-    X_new = ( S_predicted.T @ la.inv(W @ K.T).T + X.mean(axis=1)).T
-    sklearn_ica = FastICA()
-    S_sklearn = sklearn_ica.fit_transform(X.T).T
-    # S_sklearn = fast_ica.whiten(S_sklearn)
-    print(sklearn_ica.mean_)
-    W_sklearn = sklearn_ica.mixing_
-    X_new_sklearn = (S_sklearn.T @ W_sklearn.T + sklearn_ica.mean_).T
-
+    S_our, W, K, _ = fast_ica.ica(X)
+    X_our = la.inv(W @ K) @ S_our + X.mean(axis=1, keepdims=True)
+    ica_sk = FastICA()
+    S_sk = ica_sk.fit_transform(X.T).T
+    X_sk = la.inv(ica_sk._unmixing @ ica_sk.whitening_) @ S_sk + X.mean(axis=1, keepdims=True)
     source_title = [
         (S, 'Original sources ($S$)'),
         (X, 'Mixture signals ($X$)'),
         (fast_ica.whiten(X)[0], 'Whiten $X$'),
-        (S_predicted, 'Predicted $S$ [Our FastICA]'),
-        (X_new, 'Retrieved $X = W^{-1} S_{\\mathrm{predicted}}$ [Our FastICA]'),
-        # (S_sklearn, 'Predicted $S$ [Sklearn FastICA]'),
-        # (X_new_sklearn, 'Retrieved $X = W^{-1} S_{\\mathrm{predicted}}$ [Sklearn FastICA]'),
+        (S_our, 'Predicted $S$ [Our FastICA]'),
+        (X_our, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Our FastICA]'),
+        (S_sk, 'Predicted $S$ [Sklearn FastICA]'),
+        (X_sk, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Sklearn FastICA]'),
         ]
     sources, titles = zip(*source_title)
-    plot_sources(sources, titles)
+    plot_sources(sources, titles, output='ex1.pdf')
     exit()
 
-    # S_sklearn = fast_ica.center(S_sklearn, standardize=True)
-    # mean = np.einsum('ij,i->ij', np.ones(X.shape), sklearn_ica.mean_)
-    # print(mean)
-    # print(S_sklearn.shape)
     S_pca = PCA().fit_transform(X.T).T
-
