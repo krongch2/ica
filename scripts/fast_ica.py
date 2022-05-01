@@ -11,11 +11,9 @@ def center(X, standardize=False):
 
 def whiten(X, test=True):
     cov = np.cov(X)
-    print(cov)
     lamda, V = la.eigh(cov)
     lamda_inv = np.sqrt(la.inv(np.diag(lamda)))
     Z = lamda_inv @ V.T @ X
-    print(np.cov(Z))
     if test:
         tests.test_identity(np.cov(Z))
 
@@ -27,8 +25,8 @@ def g(x, a1=1):
 def dg(x):
     return 1 - g(x)**2
 
-def ica(X, cycles=1000, tol=1e-5, test=False):
-    X = whiten(center(X))
+def ica(X, standardize=False, cycles=1000, tol=1e-5, test=False):
+    X = whiten(center(X, standardize=standardize))
     nrows = X.shape[0]
     W = np.zeros((nrows, nrows))
     distances = []
@@ -45,10 +43,9 @@ def ica(X, cycles=1000, tol=1e-5, test=False):
             distance = np.abs(np.abs(w @ w_new) - 1)
             distances.append(distance)
             w = w_new
-            print(distance)
-            # check why it doesn't stop
+
             if distance < tol:
                 break
         W[i, :] = w
     S_predicted = W @ X
-    return S_predicted, distances
+    return S_predicted, W, distances

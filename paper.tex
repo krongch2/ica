@@ -89,10 +89,8 @@
 
 %\email[]{Your e-mail address}
 %\homepage[]{Your web page}
-%\thanks{}
-%\altaffiliation{}
-\author{K. Krongchon}
-\author{K. Lu}
+\author{Kittithat Krongchon}
+\author{Kannan Lu}
 \affiliation{Department of Physics, University of Illinois at Urbana-Champaign, Urbana, IL 61801, USA}
 
 %Collaboration name if desired (requires use of superscriptaddress
@@ -108,14 +106,8 @@
 
 \end{abstract}
 
-% insert suggested keywords - APS authors don't need to do this
-%\keywords{}
-
-%\maketitle must follow title, authors, abstract, and keywords
 \maketitle
 
-% body of paper here - Use proper section commands
-% References should be done using the \cite, \ref, and \label commands
 \section{Introduction}
 Why ICA: 1) In reality, source signals are often corrupted with noise, or in other words, data are composed by mutiple independent source signals. To isolate the signals from different sources are called 'Blind Source Separation' (BSS). Famous example is 'Cocktail party problem'. ICA is widely used in images, sounds, stock market and medicine, can be also viewed as a dimension reduction technique (or filtering operation). ICA is an extension of PCA, where the latter pertains to the second order statistics (covariance matrix of data). ICA optmizes higher-order statistics.
 
@@ -126,14 +118,6 @@ Several necessay conditions for ICA:
 
 
 ALgorithms: FastICA, projection pursuit and Infomax. Drawbacks: over-complete or under-complete.
-
-
-
-
-% Put \label in argument of \section for cross-refe(WHAT DOES THIS LAST SENTENCE MEAN?)rencing
-%\section{\label{}}
-%\subsection{}
-%\subsubsection{}
 
 \section{Mathematical Formulation}
 0) Proof that gaussian signals cannot be separated (Kannan)
@@ -285,96 +269,8 @@ W A &= I.
 2) recent advances and development from 2000s  
 3) what happens when there are multiple Gaussian components
 
-\begin{acknowledgments}
-
-\end{acknowledgments}
-
-
-% If in two-column mode, this environment will change to single-column
-% format so that long equations can be displayed. Use
-% sparingly.
-%\begin{widetext}
-% put long equation here
-%\end{widetext}
-
-% figures should be put into the text as floats.
-% Use the graphics or graphicx packages (distributed with LaTeX2e)
-% and the \includegraphics macro defined in those packages.
-% See the LaTeX Graphics Companion by Michel Goosens, Sebastian Rahtz,
-% and Frank Mittelbach for instance.
-%
-% Here is an example of the general form of a figure:
-% Fill in the caption in the braces of the \caption{} command. Put the label
-% that you will use with \ref{} command in the braces of the \label{} command.
-% Use the figure* environment if the figure should span across the
-% entire page. There is no need to do explicit centering.
-
-% \begin{figure}
-% \includegraphics{}%
-% \caption{\label{}}
-% \end{figure}
-
-% Surround figure environment with turnpage environment for landscape
-% figure
-% \begin{turnpage}
-% \begin{figure}
-% \includegraphics{}%
-% \caption{\label{}}
-% \end{figure}
-% \end{turnpage}
-
-% tables should appear as floats within the text
-%
-% Here is an example of the general form of a table:
-% Fill in the caption in the braces of the \caption{} command. Put the label
-% that you will use with \ref{} command in the braces of the \label{} command.
-% Insert the column specifiers (l, r, c, d, etc.) in the empty braces of the
-% \begin{tabular}{} command.
-% The ruledtabular enviroment adds doubled rules to table and sets a
-% reasonable default table settings.
-% Use the table* environment to get a full-width table in two-column
-% Add \usepackage{longtable} and the longtable (or longtable*}
-% environment for nicely formatted long tables. Or use the the [H]
-% placement option to break a long table (with less control than
-% in longtable).
-% \begin{table}%[H] add [H] placement to break table across pages
-% \caption{\label{}}
-% \begin{ruledtabular}
-% \begin{tabular}{}
-% Lines of table here ending with \\
-% \end{tabular}
-% \end{ruledtabular}
-% \end{table}
-
-% Surround table environment with turnpage environment for landscape
-% table
-% \begin{turnpage}
-% \begin{table}
-% \caption{\label{}}
-% \begin{ruledtabular}
-% \begin{tabular}{}
-% \end{tabular}
-% \end{ruledtabular}
-% \end{table}
-% \end{turnpage}
-
-% Specify following sections are appendices. Use \appendix* if there
-% only one appendix.
-%\appendix
-%\section{}
-
-% If you have acknowledgments, this puts in the proper section head.
-%\begin{acknowledgments}
-% put your acknowledgments here.
-%\end{acknowledgments}
-
-% Create the reference section using BibTeX:
-%\bibliography{****.bib}
 
 \end{document}
-%
-% ****** End of file apstemplate.tex ******
-
 \grid
 \grid
 \grid
