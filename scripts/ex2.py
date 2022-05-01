@@ -18,7 +18,7 @@ def extract():
     - Austin Powers
     - The Matrix
     '''
-    X = np.loadtxt('mix.dat').T
+    X = np.loadtxt('ex2_mix.dat').T
     # play(X)
 
     S_out, W, K, X_out, distances = fast_ica.ica(X)

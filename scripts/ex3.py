@@ -36,15 +36,15 @@ def plot_eeg(d, d2=None, output='eeg.pdf'):
 
 def remove_blinks():
     np.random.seed(0)
-    X = loadmat('ex2_eeg.mat')['Data']
-    plot_eeg(X, output='ex2_raw.pdf')
+    X = loadmat('ex3_eeg.mat')['Data']
+    plot_eeg(X, output='ex3_raw.pdf')
     S_out, W, K, X_out, distances = fast_ica.ica(X)
-    plot_eeg(S_out, output='ex2_ica.pdf')
+    plot_eeg(S_out, output='ex3_ica.pdf')
     S_out_noblinks = S_out.copy()
     S_out_noblinks[3, :] = np.zeros(X.shape[1])
     X_noblinks = fast_ica.retrieve_X_out(X, W, K, S_out_noblinks)
-    plot_eeg(X_noblinks, output='ex2_noblinks.pdf')
-    plot_eeg(X, d2=X_noblinks, output='ex2_noblinks.pdf')
+    plot_eeg(X_noblinks, output='ex3_noblinks.pdf')
+    plot_eeg(X, d2=X_noblinks, output='ex3_noblinks.pdf')
 
 
 

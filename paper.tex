@@ -209,7 +209,7 @@ In this method, we maximize the non-Gaussianity given by
 \begin{align}
 J(Y) \propto \{E[G(Y)] - E[G(V)]\}^2,
 \end{align}
-where $Y$ is a random variable of zero mean and unit variance, which can be achieved by whitening the data, and $V$ is a Gaussian variable also of zero mean and unit variance. In function forms of $G_1$ and $G_2$ should not grow too fast to be robust. The following choice of $G$ is proposed by Hyvärinen and Oja.
+where $Y$ is a random variable of zero mean and unit variance, which can be achieved by whitening the data, and $V$ is a Gaussian variable also of zero mean and unit variance. In function forms of $G_1$ and $G_2$ should not grow too fast to be robust. The following choice of $G$ is proposed by Hyvärinen and Oja~\cite{hyvarinen2000independent}.
 \begin{align}
 G_1(u) &= \frac{1}{a_1} \log (\cosh a_1 u). \\
 G_1^{\prime}(u) &= \tanh(a_1 u).
@@ -286,6 +286,7 @@ W A &= I.
 2) recent advances and development from 2000s  
 3) what happens when there are multiple Gaussian components
 
+\bibliography{paper}{}
 
 \end{document}
 \grid
