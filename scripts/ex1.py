@@ -63,7 +63,7 @@ if __name__ == '__main__':
     S_out, W, K, X_out, distances = fast_ica.ica(X)
     print(W)
     plot_distances(distances, output='ex1_dist.pdf')
-
+    X_whiten = fast_ica.retrieve_whiten(X, W, K, S_out)
     S_out_sk, W, K, X_out_sk, distances = fast_ica.ica_sk(X)
     S_pca = PCA().fit_transform(X.T).T
 
@@ -71,14 +71,13 @@ if __name__ == '__main__':
         (S, 'Original sources ($S$)'),
         (X, 'Mixture signals ($X$)'),
         (fast_ica.whiten(X)[0], 'Whiten $X$'),
-        (S_out, '$S_{\\mathrm{predicted}}$ [Our FastICA]'),
+        (fast_ica.center(S_out, divide_sd=True), '$S_{\\mathrm{predicted}}$ [Our FastICA]'),
         (X_out, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Our FastICA]'),
+        (X_whiten, '$X_{whiten}$ [Our FastICA]'),
         (S_out_sk, 'Predicted $S$ [Sklearn FastICA]'),
         (X_out_sk, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Sklearn FastICA]'),
-        (S_pca, '$S_{\\mathrm{predicted}}$ [PCA]')
+        (fast_ica.center(S_pca, divide_sd=True), '$S_{\\mathrm{predicted}}$ [PCA]')
         ]
     sources, titles = zip(*source_title)
     plot_sources(sources, titles, output='ex1_sources.pdf')
     exit()
-
-

@@ -26,7 +26,7 @@ def plot_eeg(d, d2=None, output='eeg.pdf'):
         if d2 is not None:
             ax[i, j].plot(d2[comp], '-', color=colors[1])
         ax[i, j].text(0.5, 1, f'{comp}', transform=ax[i, j].transAxes, fontsize=6)
-        # ax[i, j].set_yticks([])
+        ax[i, j].set_yticks([])
         ax[i, j].set_xticks([])
     fig.tight_layout()
     if output is None:
@@ -38,15 +38,13 @@ def remove_blinks():
     np.random.seed(0)
     X = loadmat('ex3_eeg.mat')['Data']
     plot_eeg(X, output='ex3_raw.pdf')
-    S_out, W, K, X_out, distances = fast_ica.ica(X)
+    S_out, W, K, X_out, distances = fast_ica.ica_sk(X)
     plot_eeg(S_out, output='ex3_ica.pdf')
     S_out_noblinks = S_out.copy()
-    S_out_noblinks[3, :] = np.zeros(X.shape[1])
+    S_out_noblinks[48, :] = np.zeros(X.shape[1])
     X_noblinks = fast_ica.retrieve_X_out(X, W, K, S_out_noblinks)
     plot_eeg(X_noblinks, output='ex3_noblinks.pdf')
     plot_eeg(X, d2=X_noblinks, output='ex3_noblinks.pdf')
-
-
 
 if __name__ == '__main__':
     remove_blinks()

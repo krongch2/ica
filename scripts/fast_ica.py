@@ -40,9 +40,16 @@ def retrieve_X_out(X, W, K, S_out):
     X_out = la.inv(W @ K) @ S_out + X.mean(axis=1, keepdims=True)
     return X_out
 
+def retrieve_whiten(X, W, K, S_out):
+    X_whiten = la.inv(W) @ S_out
+    print()
+    return X_whiten
+
 def ica(X, cycles=200, tol=1e-5, test=False):
     X1, K = whiten(X)
+    # X1 = center(X, divide_sd=True)
     nrows, ncols = X.shape
+    # K = np.eye(nrows)
     W = np.zeros((nrows, nrows))
     distances = []
     for i in range(nrows):
