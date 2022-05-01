@@ -2,7 +2,6 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.linalg as la
-import seaborn as sns
 
 import fast_ica
 
@@ -16,35 +15,38 @@ def loadmat(fn):
             d[k] = np.array(v)
     return d
 
-def plot_eeg(d, output='eeg.pdf'):
+def plot_eeg(d, d2=None, output='eeg.pdf'):
     ncomponents = d.shape[0]
     fig, ax = plt.subplots(nrows=8, ncols=8, sharex=True, sharey=False)
+    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
     for comp in range(ncomponents):
         i = int(comp/8)
         j = int(comp%8)
-        ax[i, j].plot(d[comp])
-        # ax[i, j].set_title(f'{comp}', fontsize=6)
-        ax[i, j].set_yticks([])
+        ax[i, j].plot(d[comp], '-', color=colors[0])
+        if d2 is not None:
+            ax[i, j].plot(d2[comp], '-', color=colors[1])
+        ax[i, j].text(0.5, 1, f'{comp}', transform=ax[i, j].transAxes, fontsize=6)
+        # ax[i, j].set_yticks([])
         ax[i, j].set_xticks([])
     fig.tight_layout()
-    plt.savefig(output)
+    if output is None:
+        plt.show()
+    else:
+        plt.savefig(output, bbox_inches='tight')
+
+def remove_blinks():
+    np.random.seed(0)
+    X = loadmat('ex2_eeg.mat')['Data']
+    plot_eeg(X, output='ex2_raw.pdf')
+    S_out, W, K, X_out, distances = fast_ica.ica(X)
+    plot_eeg(S_out, output='ex2_ica.pdf')
+    S_out_noblinks = S_out.copy()
+    S_out_noblinks[3, :] = np.zeros(X.shape[1])
+    X_noblinks = fast_ica.retrieve_X_out(X, W, K, S_out_noblinks)
+    plot_eeg(X_noblinks, output='ex2_noblinks.pdf')
+    plot_eeg(X, d2=X_noblinks, output='ex2_noblinks.pdf')
 
 
-def std(x):
-    return (x - x.mean())/np.std(x)
 
 if __name__ == '__main__':
-    X = loadmat('eeg.mat')['Data']
-    X = X[:2]
-    plot_eeg(X, 'eeg_in.pdf')
-    S_predicted, W, _ = fast_ica.ica(X, cycles=100)
-    plot_eeg(S_predicted, 'eeg_out.pdf')
-    S_predicted_noblinks = S_predicted.copy()
-    S_predicted_noblinks[0, :] = np.zeros(X.shape[1])
-    X_noblinks = la.inv(W) @ S_predicted_noblinks
-    # plot_eeg(X_noblinks, 'egg_noblinks.pdf')
-
-    fig, ax = plt.subplots(nrows=1, ncols=2, sharey=True)
-    ax[0].plot(std(X[0]))
-    ax[1].plot(std(X_noblinks[0]))
-    plt.show()
+    remove_blinks()

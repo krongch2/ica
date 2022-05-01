@@ -31,7 +31,7 @@ def load_data():
 def plot_sources(sources, titles, output=None):
 
     n = len(sources)
-    fig, ax = plt.subplots(nrows=n, ncols=1, figsize=(7, 7), sharex=True, sharey=False)
+    fig, ax = plt.subplots(nrows=n, ncols=1, figsize=(9, 7), sharex=True, sharey=False)
     for i in range(n):
         for source in sources[i]:
             ax[i].plot(source)
@@ -43,25 +43,42 @@ def plot_sources(sources, titles, output=None):
     else:
         plt.savefig(output, bbox_inches='tight')
 
+def plot_distances(distances, output=None):
+    n = len(distances)
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(3, 3))
+    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    for i in range(n):
+        ax.plot(distances[i], 'o-', mec='white', color=colors[i], label=f'Component {i}')
+    ax.set(xlabel='Cycle', ylabel='$||w_{n}^T w_{n-1}| - 1|$')
+    ax.legend(fancybox=False, edgecolor='k')
+
+    if output is None:
+        plt.show()
+    else:
+        plt.savefig(output, bbox_inches='tight')
+
 if __name__ == '__main__':
     np.random.seed(0)
     X, S = load_data()
-    S_our, W, K, _ = fast_ica.ica(X)
-    X_our = la.inv(W @ K) @ S_our + X.mean(axis=1, keepdims=True)
-    ica_sk = FastICA()
-    S_sk = ica_sk.fit_transform(X.T).T
-    X_sk = la.inv(ica_sk._unmixing @ ica_sk.whitening_) @ S_sk + X.mean(axis=1, keepdims=True)
+    S_out, W, K, X_out, distances = fast_ica.ica(X)
+    print(W)
+    plot_distances(distances, output='ex1_dist.pdf')
+
+    S_out_sk, W, K, X_out_sk, distances = fast_ica.ica_sk(X)
+    S_pca = PCA().fit_transform(X.T).T
+
     source_title = [
         (S, 'Original sources ($S$)'),
         (X, 'Mixture signals ($X$)'),
         (fast_ica.whiten(X)[0], 'Whiten $X$'),
-        (S_our, 'Predicted $S$ [Our FastICA]'),
-        (X_our, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Our FastICA]'),
-        (S_sk, 'Predicted $S$ [Sklearn FastICA]'),
-        (X_sk, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Sklearn FastICA]'),
+        (S_out, '$S_{\\mathrm{predicted}}$ [Our FastICA]'),
+        (X_out, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Our FastICA]'),
+        (S_out_sk, 'Predicted $S$ [Sklearn FastICA]'),
+        (X_out_sk, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Sklearn FastICA]'),
+        (S_pca, '$S_{\\mathrm{predicted}}$ [PCA]')
         ]
     sources, titles = zip(*source_title)
-    plot_sources(sources, titles, output='ex1.pdf')
+    plot_sources(sources, titles, output='ex1_sources.pdf')
     exit()
 
-    S_pca = PCA().fit_transform(X.T).T
+
