@@ -63,7 +63,7 @@ if __name__ == '__main__':
     source_title = [
         (S, 'Original sources ($S$)'),
         (X, 'Mixture signals ($X$)'),
-        (fast_ica.whiten(X), 'Whiten $X$'),
+        (fast_ica.whiten(X)[0], 'Whiten $X$'),
         (S_predicted, 'Predicted $S$ [Our FastICA]'),
         (X_new, 'Retrieved $X = W^{-1} S_{\\mathrm{predicted}}$ [Our FastICA]'),
         # (S_sklearn, 'Predicted $S$ [Sklearn FastICA]'),
