@@ -1,25 +1,25 @@
 from matplotlib import pyplot as plt
 import numpy as np
+import numpy.linalg as la
 from scipy import signal
-from scipy.io import wavfile
 from sklearn.decomposition import FastICA, PCA
 
 import fast_ica
 
-plt.rc('font', family='serif')
-plt.rc('text', usetex=True)
+# plt.rc('font', family='serif')
+# plt.rc('text', usetex=True)
 
 def load_data():
     N = 2000
     time = np.linspace(0, 8, N)
-    s1 = np.sin(2*time) # sinusoidal
-    s2 = np.sign(np.sin(3*time)) # square signal
-    s3 = signal.sawtooth(2*np.pi*time) # saw tooth signal
+    s1 = 5*np.sin(2*time) # sinusoidal
+    s2 = 20*np.sign(np.sin(3*time)) # square signal
+    s3 = 100*signal.sawtooth(2*np.pi*time) + 50# saw tooth signal
     s4 = s1 + s2
     s5 = s1 - s2
+    s6 = np.cos(2*time)
 
-    # S = np.array([s1, s2, s3])
-    S = np.array([s3, s4, s5])
+    S = np.array([s1, s2, s3])
     A = np.array([
         [1, 1, 1],
         [0.5, 2, 1],
@@ -28,41 +28,40 @@ def load_data():
     X = A @ S
     return X, S
 
-def plot_sources(X, S, S_predicted, S_sklearn, S_pca):
-    fig, ax = plt.subplots(nrows=2, ncols=3)
+def plot_sources(sources, titles, output=None):
 
-    for x in X:
-        ax[0, 0].plot(x)
-        ax[0, 0].set_title('Mixture signals ($X$)')
-
-    for s in S:
-        ax[0, 1].plot(s)
-        ax[0, 1].set_title("Original sources ($S$)")
-
-    for S_predicted in S_predicted:
-        ax[1, 0].plot(-S_predicted)
-        ax[1, 0].set_title("Predicted sources ($W X$) [Our FastICA]")
-
-    for S_sklearn in S_sklearn:
-        ax[1, 1].plot(S_sklearn)
-        ax[1, 1].set_title("Predicted sources ($W X$) [Sklearn FastICA]")
-
-    for S_pca in S_pca:
-        ax[1, 2].plot(S_pca)
-        ax[1, 2].set_title("Predicted sources ($W X$) [Sklearn PCA]")
+    n = len(sources)
+    fig, ax = plt.subplots(nrows=n, ncols=1, figsize=(7, 7), sharex=True, sharey=False)
+    for i in range(n):
+        for source in sources[i]:
+            ax[i].plot(source)
+        ax[i].set_title(titles[i], fontsize=8)
 
     fig.tight_layout()
-    plt.show()
+    if output is None:
+        plt.show()
+    else:
+        plt.savefig(output, bbox_inches='tight')
 
 if __name__ == '__main__':
     np.random.seed(0)
     X, S = load_data()
-    S_predicted, distances = fast_ica.ica(X, cycles=100)
-    # print(distances)
-    # plt.plot(distances)
-    # plt.ylim((0, 0.1))
-    # plt.show()
-    # exit()
-    S_sklearn = FastICA(n_components=3).fit_transform(X.T).T
-    S_pca = PCA(n_components=3).fit_transform(X.T).T
-    plot_sources(X, S, S_predicted, S_sklearn, S_pca)
+    S_our, W, K, _ = fast_ica.ica(X)
+    X_our = la.inv(W @ K) @ S_our + X.mean(axis=1, keepdims=True)
+    ica_sk = FastICA()
+    S_sk = ica_sk.fit_transform(X.T).T
+    X_sk = la.inv(ica_sk._unmixing @ ica_sk.whitening_) @ S_sk + X.mean(axis=1, keepdims=True)
+    source_title = [
+        (S, 'Original sources ($S$)'),
+        (X, 'Mixture signals ($X$)'),
+        (fast_ica.whiten(X)[0], 'Whiten $X$'),
+        (S_our, 'Predicted $S$ [Our FastICA]'),
+        (X_our, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Our FastICA]'),
+        (S_sk, 'Predicted $S$ [Sklearn FastICA]'),
+        (X_sk, 'Retrieved $X = (W K)^{-1} S_{\\mathrm{predicted}}$ [Sklearn FastICA]'),
+        ]
+    sources, titles = zip(*source_title)
+    plot_sources(sources, titles, output='ex1.pdf')
+    exit()
+
+    S_pca = PCA().fit_transform(X.T).T

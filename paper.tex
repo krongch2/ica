@@ -37,6 +37,33 @@
 \usepackage{color}
 \frenchspacing
 %\graphicspath{/pics/}
+%\graphicspath{{~/data/KannanLu/exp623/article/}}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+% \definecolor{backcolour}{rgb}{0.18,0.18,0.18}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
 
 \begin{document}
 
@@ -63,10 +90,8 @@
 
 %\email[]{Your e-mail address}
 %\homepage[]{Your web page}
-%\thanks{}
-%\altaffiliation{}
-\author{K. Krongchon}
-\author{K. Lu}
+\author{Kittithat Krongchon}
+\author{Kannan Lu}
 \affiliation{Department of Physics, University of Illinois at Urbana-Champaign, Urbana, IL 61801, USA}
 
 %Collaboration name if desired (requires use of superscriptaddress
@@ -82,14 +107,8 @@
 
 \end{abstract}
 
-% insert suggested keywords - APS authors don't need to do this
-%\keywords{}
-
-%\maketitle must follow title, authors, abstract, and keywords
 \maketitle
 
-% body of paper here - Use proper section commands
-% References should be done using the \cite, \ref, and \label commands
 \section{Introduction}
 Independent component analysis (ICA) is one of the classical unsupervised learning techniques that is used to seperate out latent variables or reduce dimensions. The motivation of the development of this technique is based on very commom problems. For instance, in reality, source signals are often corrupted with 'noise'. Or in other words, data are composed by mutiple independent source signals. To isolate the signals from different sources, ICA can be a good choice. The famous example is the 'cocktail party problem', where the sound detectors record the superposition of various sound signals from different sources in the party. The goal is to seperate out the observed signal into sounds from each different source. Since we do not know what the sources are and how these signals are mixed, this type of problem is called 'blind source separation' (BSS). ICA is widely used in images, sounds, stock market and medical signals. ICA can also be viewed as an extension of principle component analysis (PCA), where the latter maximizes the second order statistics (covariance matrix of data). ICA maximizes higher-order statistics or simply tries to look for independent components not just uncorrelated components. In Fig.~\ref{fig:ICA_vs_PCA}, we show the ICA components $IC_{i}$ and PCA components $PC_{i}$ learned from the observed data $x_{i}$ with the original sources $s_{i}$ sampled from uniform distribution independently. Clearly. the ICA learned the independent components correctly but the PCA did not in this case. 
 
@@ -113,7 +132,6 @@ Before we delve into the detailed mathematical formalisms, we first define the n
 Without these conditions, the BSS problem is ill-defined. For simplicity, we will also restrict the discussion to cases where the number of detectors and sources are the same. However, a generalization to condition (1) is feasible and the algorithms discussed in the following sections will still work.
 
 Based on these definitions, we need to talk about some ambiguities embedded in the symmetry of the problem and justify that if the origianl signals are all Gaussians, they cannot be learned through the un-mixing. There are two ambiguities that usually do not affect the practical application, namely the permutation ambiguity and the scaling ambiguity. It is trivial to see that the ordering of the original sources \{$s_{j}$\} is ambiguous. In the case of scaling, if the original signal $\bf{s}$ is scaled by a non-zero constant to be $c\bf{s}$ where $c \neq 0$. Then the mixing matrix $\bf{A}$ can be scaled by $1/c$ and resulting in the same observed data $\bf{x}$$ = \frac{1}{c}\bf{A}$$c\bf{s}$. This scaling ambiguity can be furtherly extended with regard to each component of the original signal. That is, for a particular component $j$, if we scale the component by $c_{j}$ the corrsponding column of the mixing matrix can be scaled by $1/c_{j}$ to have the observed data unchanged (i.e. $x_{i} = \sum_{j}\frac{1}{c_{j}}A_{ij}c_{j}s_{j}$).  
-
 
 
 The other ambiguity that matters for the practical application is that the original sources cannot all be distributed as Gaussians. Or to be more precise, in order to seperate the independent components, we require that the original signals can only have at most one component to be sampled from a Gaussian distribution, i.e. $s_{j}$ $\sim \mathcal{N}(\mu,\,\sigma^{2})$ for at most one $j$. Let's consider the case when all the original independent signals are Gaussians. That is, $s_{j}$ $\sim \mathcal{N}(\mu_{j},\,\sigma_{j}^{2})$ for $j = 1, 2, ..., d$. Then given the mixing matrix $\bf{A}$, we have 
@@ -218,15 +236,35 @@ w_{n+1} &= w_n - \frac{F(w_n)}{F^{\prime}(w_n)} \\
 &= \frac{w_n E[g^{\prime}(w_n^T x)] - \beta w_n - E[x g (w_n^T x)] + \beta w_n}{E[g^{\prime}(w_n^T x)] - \beta} \\
 &= \frac{w_n E[g^{\prime}(w_n^T x)] - E[x g (w_n^T x)]}{E[g^{\prime}(w_n^T x)] - \beta}.
 \end{align}
+\section{Example}
+We implement FastICA according to the formalism described in the previous section.
+The algorithm is applied to a following set of signal functions.
+\begin{align}
+s_1 &= \sin(2 t). \\
+s_2 &= \mathrm{sign} [\sin(3 t)]. \\
+s_3 &= \frac{1}{2\pi} (t~\mathrm{mod}~2\pi).
+\end{align}
+The mixing matrix is taken to be
+\begin{align}
+A &= \begin{bmatrix}
+1 & 1 & 1 \\
+0.5 & 2 & 1 \\
+1.5 & 1 & 2
+\end{bmatrix}.
+\end{align}
+The result from our implementation and FastICA are shown in Fig.~\ref{fig:sklearn}.
+% \begin{figure}
+% \includegraphics{scripts/sklearn.pdf}
+% \caption{\label{fig:sklearn} FastICA results using our code and \lstinline{sklearn.decomposition.FastICA}}
+% \end{figure}
 
 \section{Applications}
-1) sklearn example
 3) example: sound single decomposition
-4) stock price
-5) EEG
-% (https://towardsdatascience.com/independent-component-analysis-ica-a3eba0ccec35)
+4) EEG % (https://towardsdatascience.com/independent-component-analysis-ica-a3eba0ccec35)
+5) stock price
 
-\section{How to check the robustness and }
+
+\section{How to check the robustness and convergence}
 % Amari metric, ref "ELements of Statistical Learning", p.570
 
 %1) check if the performance matrix is identity (Te-won Lee, p. 51)
@@ -250,96 +288,8 @@ W A &= I.
 2) recent advances and development from 2000s  
 3) what happens when there are multiple Gaussian components
 
-\begin{acknowledgments}
-
-\end{acknowledgments}
-
-
-% If in two-column mode, this environment will change to single-column
-% format so that long equations can be displayed. Use
-% sparingly.
-%\begin{widetext}
-% put long equation here
-%\end{widetext}
-
-% figures should be put into the text as floats.
-% Use the graphics or graphicx packages (distributed with LaTeX2e)
-% and the \includegraphics macro defined in those packages.
-% See the LaTeX Graphics Companion by Michel Goosens, Sebastian Rahtz,
-% and Frank Mittelbach for instance.
-%
-% Here is an example of the general form of a figure:
-% Fill in the caption in the braces of the \caption{} command. Put the label
-% that you will use with \ref{} command in the braces of the \label{} command.
-% Use the figure* environment if the figure should span across the
-% entire page. There is no need to do explicit centering.
-
-% \begin{figure}
-% \includegraphics{}%
-% \caption{\label{}}
-% \end{figure}
-
-% Surround figure environment with turnpage environment for landscape
-% figure
-% \begin{turnpage}
-% \begin{figure}
-% \includegraphics{}%
-% \caption{\label{}}
-% \end{figure}
-% \end{turnpage}
-
-% tables should appear as floats within the text
-%
-% Here is an example of the general form of a table:
-% Fill in the caption in the braces of the \caption{} command. Put the label
-% that you will use with \ref{} command in the braces of the \label{} command.
-% Insert the column specifiers (l, r, c, d, etc.) in the empty braces of the
-% \begin{tabular}{} command.
-% The ruledtabular enviroment adds doubled rules to table and sets a
-% reasonable default table settings.
-% Use the table* environment to get a full-width table in two-column
-% Add \usepackage{longtable} and the longtable (or longtable*}
-% environment for nicely formatted long tables. Or use the the [H]
-% placement option to break a long table (with less control than
-% in longtable).
-% \begin{table}%[H] add [H] placement to break table across pages
-% \caption{\label{}}
-% \begin{ruledtabular}
-% \begin{tabular}{}
-% Lines of table here ending with \\
-% \end{tabular}
-% \end{ruledtabular}
-% \end{table}
-
-% Surround table environment with turnpage environment for landscape
-% table
-% \begin{turnpage}
-% \begin{table}
-% \caption{\label{}}
-% \begin{ruledtabular}
-% \begin{tabular}{}
-% \end{tabular}
-% \end{ruledtabular}
-% \end{table}
-% \end{turnpage}
-
-% Specify following sections are appendices. Use \appendix* if there
-% only one appendix.
-%\appendix
-%\section{}
-
-% If you have acknowledgments, this puts in the proper section head.
-%\begin{acknowledgments}
-% put your acknowledgments here.
-%\end{acknowledgments}
-
-% Create the reference section using BibTeX:
-%\bibliography{****.bib}
 
 \end{document}
-%
-% ****** End of file apstemplate.tex ******
-
 \grid
 \grid
 \grid

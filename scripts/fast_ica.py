@@ -3,23 +3,30 @@ import numpy.linalg as la
 
 import tests
 
-def center(X, standardize=False):
+def center(X, divide_sd=False):
     mu = X.mean(axis=1, keepdims=True)
-    sd = X.std(axis=1, keepdims=True, ddof=0) if standardize else 1
+    sd = X.std(axis=1, keepdims=True, ddof=0) if divide_sd else 1
     D = (X - mu)/sd
     return D
 
 def whiten(X, test=True):
+    X = center(X)
     cov = np.cov(X)
-    print(cov)
     lamda, V = la.eigh(cov)
-    lamda_inv = np.sqrt(la.inv(np.diag(lamda)))
-    Z = lamda_inv @ V.T @ X
-    print(np.cov(Z))
+    lamda_inv = la.inv(np.diag(lamda))**0.5
+    K = lamda_inv @ V.T
+    Z = K @ X
+
     if test:
         tests.test_identity(np.cov(Z))
 
-    return Z
+    return Z, K
+
+def whiten_svd(X):
+    U, D, _ = la.svd(X, full_matrices=False)
+    K = U / D
+    Z = K.T @ X
+    return Z, K.T
 
 def g(x, a1=1):
     return np.tanh(a1*x)
@@ -27,28 +34,29 @@ def g(x, a1=1):
 def dg(x):
     return 1 - g(x)**2
 
-def ica(X, cycles=1000, tol=1e-5, test=False):
-    X = whiten(center(X))
-    nrows = X.shape[0]
+def ica(X, cycles=200, tol=1e-5, test=False):
+    X = center(X)
+    X1, K = whiten(X)
+    nrows, ncols = X.shape
     W = np.zeros((nrows, nrows))
     distances = []
     for i in range(nrows):
         w = np.random.random((nrows))
         for _ in range(cycles):
-            w_new = (X * g(w.T @ X)).mean(axis=1) - dg(w.T @ X).mean() * w
+            w_new = (X1 * g(w.T @ X1)).mean(axis=1) - dg(w.T @ X1).mean() * w
 
             if test:
                 tests.test_gram_schmidt(w_new, W, i)
 
-            w_new -= W[:i] @ w_new @ W[:i]
-            w_new /= (w_new**2).sum()**0.5
+            w_new -= w_new @ W[:i].T @ W[:i]
+            w_new /= ((w_new**2).sum())**0.5
             distance = np.abs(np.abs(w @ w_new) - 1)
             distances.append(distance)
             w = w_new
 
-            # check why it doesn't stop
             if distance < tol:
                 break
         W[i, :] = w
-    S_predicted = W @ X
-    return S_predicted, distances
+
+    S_predicted = W @ K @ X
+    return S_predicted, W, K, distances
