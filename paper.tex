@@ -205,11 +205,8 @@ l(\bf{W}) = \frac{1}{N}\sum_{j=1}^{N}(\sum_{i=1}^{d}\log(\hat{p}_{s}(\bf{w}_{i}\
 If the approximation $\hat{p}_{s}(\bf{w}_{i}\bf{x})$ are close to the actual pdf, the first term is approximately $-\sum_{i}H(\bf{w}_{i}\bf{x})$ and is equal to the negative of the mutual information up to an additive constant of the total entropy of $\bf{x}$. Hence, all these historical information theoretic approaches are equivalent and the key idea is to approximate the probability distribution of the sources correctly. Historically, there has been several proposed parametric distributions for approximating super-Gaussian or sub-Gaussian distributions. We will proceed to discuss the algorithm associated with the information based approach in the next section. 
 
 \section{Algorithms}
-There are some detailed difference on how gradient algorithms are implemented, i.e. ordinary gradient descent or fixed point algorithm.
-\subsection{objective function based on maximum likelihood  (Kannan)}
-
-\subsection{FastICA}
-\subsection{alternative objective function, skewness and kurtosis (Kannan)}
+In this section, we will discuss some of the common algorithms based on the previous mathematical formalisms. We will categorize them into moment-based approaches and information-based approaches. In either case, the problem is equivalent to an optimization problem. There are some detailed differences on how this optimization problem is implemented, i.e. ordinary gradient descent, Newton's method or fixed point algorithm. We will simply specify what we implemented for various examples that we will discuss later. 
+\subsection{Moment-based approach}
 In this method, we maximize the non-Gaussianity given by
 \begin{align}
 J(Y) \propto \{E[G(Y)] - E[G(V)]\}^2,
@@ -236,7 +233,9 @@ w_{n+1} &= w_n - \frac{F(w_n)}{F^{\prime}(w_n)} \\
 &= \frac{w_n E[g^{\prime}(w_n^T x)] - \beta w_n - E[x g (w_n^T x)] + \beta w_n}{E[g^{\prime}(w_n^T x)] - \beta} \\
 &= \frac{w_n E[g^{\prime}(w_n^T x)] - E[x g (w_n^T x)]}{E[g^{\prime}(w_n^T x)] - \beta}.
 \end{align}
-\section{Example}
+\subsection{Information theoretic approach}
+
+\section{Applications}
 We implement FastICA according to the formalism described in the previous section.
 The algorithm is applied to a following set of signal functions.
 \begin{align}
@@ -258,10 +257,10 @@ The result from our implementation and FastICA are shown in Fig.~\ref{fig:sklear
 % \caption{\label{fig:sklearn} FastICA results using our code and \lstinline{sklearn.decomposition.FastICA}}
 % \end{figure}
 
-\section{Applications}
-3) example: sound single decomposition
-4) EEG % (https://towardsdatascience.com/independent-component-analysis-ica-a3eba0ccec35)
-5) stock price
+
+%3) example: sound single decomposition
+%4) EEG % (https://towardsdatascience.com/independent-component-analysis-ica-a3eba0ccec35)
+%5) stock price
 
 
 \section{How to check the robustness and convergence}
@@ -274,9 +273,6 @@ W A &= I.
 
 %2) check how fast w changes (ICA_projectionPursuit1612.05445.pdf, p. 12)
 
-
-\section{PCA vs. ICA}
-% (https://www.cs.ubc.ca/~jnutini/documents/mlrg_pca.pdf)
 
 \section{what if two of the sources are dependent}
 %s3 = signal.sawtooth(2*np.pi*time) # saw tooth signal
