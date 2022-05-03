@@ -74,7 +74,6 @@
 % to display numbers if necessary
 %\preprint{}
 
-%Title of paper
 \title{Independent Component Analysis}
 
 % repeat the \author .. \affiliation  etc. as needed
@@ -110,7 +109,7 @@ Indenpendent component analysis (ICA) is an unsupervised learning technique that
 \maketitle
 
 \section{Introduction}
-Independent component analysis (ICA) is one of the classical unsupervised learning techniques that is used to seperate out latent variables or reduce dimensions. The motivation of the development of this technique is based on very commom problems. For instance, in reality, source signals are often corrupted with 'noise'. Or in other words, data are composed by mutiple independent source signals. To isolate the signals from different sources, ICA can be a good choice. The famous example is the 'cocktail party problem', where the sound detectors record the superposition of various sound signals from different sources in the party. The goal is to seperate out the observed signal into sounds from each different source. Since we do not know what the sources are and how these signals are mixed, this type of problem is called 'blind source separation' (BSS). ICA is widely used in images, sounds, stock market and medical signals. ICA can also be viewed as an extension of principle component analysis (PCA), where the latter maximizes the second order statistics (covariance matrix of data). ICA maximizes higher-order statistics or simply tries to look for independent components not just uncorrelated components. In Fig.~\ref{fig:ICA_vs_PCA}, we show the ICA components $IC_{i}$ and PCA components $PC_{i}$ learned from the observed data $x_{i}$ with the original sources $s_{i}$ sampled from uniform distribution independently. Clearly. the ICA learned the independent components correctly but the PCA did not in this case. 
+Independent component analysis (ICA) is one of the classical unsupervised learning techniques that is used to seperate out latent variables or reduce dimensions. The motivation of the development of this technique is based on very commom problems. For instance, in reality, source signals are often corrupted with 'noise'. Or in other words, data are composed by mutiple independent source signals. To isolate the signals from different sources, ICA can be a good choice. The famous example is the 'cocktail party problem', where the sound detectors record the superposition of various sound signals from different sources in the party. The goal is to seperate out the observed signal into sounds from each different source. Since we do not know what the sources are and how these signals are mixed, this type of problem is called blind source separation (BSS). ICA is widely used in images, sounds, stock market and medical signals. ICA can also be viewed as an extension of principle component analysis (PCA), where the latter maximizes the second order statistics (covariance matrix of data). ICA maximizes higher-order statistics or simply tries to look for independent components not just uncorrelated components. In Fig.~\ref{fig:ICA_vs_PCA}, we show the ICA components $IC_{i}$ and PCA components $PC_{i}$ learned from the observed data $x_{i}$ with the original sources $s_{i}$ sampled from uniform distribution independently. Clearly. the ICA learned the independent components correctly but the PCA did not in this case.
 
 In this paper, we will review mathematical background of the ICA technique, the detailed algorithm implementation and several realizations in typical examples. 
 
@@ -209,10 +208,10 @@ In this method, we maximize the non-Gaussianity given by
 \begin{align}
 J(Y) \propto \{E[G(Y)] - E[G(V)]\}^2,
 \end{align}
-where $Y$ is a random variable of zero mean and unit variance, which can be achieved by whitening the data, and $V$ is a Gaussian variable also of zero mean and unit variance. In function forms of $G_1$ and $G_2$ should not grow too fast to be robust. The following choice of $G$ is proposed by Hyvärinen and Oja~\cite{hyvarinen2000independent}.
+where $Y$ is a random variable of zero mean and unit variance, which can be achieved by whitening the data, and $V$ is a Gaussian variable also of zero mean and unit variance. THe function forms of $G$ should not grow too fast to be robust. The following choice of $G$ is proposed by Hyvärinen and Oja~\cite{hyvarinen2000independent}.
 \begin{align}
-G_1(u) &= \frac{1}{a_1} \log (\cosh a_1 u). \\
-G_1^{\prime}(u) &= \tanh(a_1 u).
+G(u) &= \frac{1}{a_1} \log (\cosh a_1 u). \\
+\partial_u G(u) &= \tanh(a_1 u).
 \end{align}
 We want to find the extrema of $E[G(Y)]$ to maximize $J(Y)$ under the constraints
 \begin{align}
@@ -238,32 +237,70 @@ l(\bf{W}) &= \sum_{j=1}^{N}(\sum_{i=1}^{d}\log(\hat{p}_{s}(\bf{w}_{i}\bf{x}^{(j)
 &= \sum_{j=1}^{N}(\sum_{i=1}^{d}\log(g'(\bf{w}_{i}\bf{x}^{(j)}))+\log|\bf{W}|)
 \end{align}    
 \section{Applications}
-We implement FastICA according to the formalism described in the previous section.
-The algorithm is applied to a following set of signal functions.
+We implement FastICA according to the formalism described in the previous section and apply it to the observed data $X$ in order to find the source matrix $S$ given by
 \begin{align}
-s_1 &= \sin(2 t). \\
-s_2 &= \mathrm{sign} [\sin(3 t)]. \\
-s_3 &= \frac{1}{2\pi} (t~\mathrm{mod}~2\pi).
+S &= \begin{bmatrix}
+s_1(t_1) & s_1(t_2) & \cdots & s_1(t_N) \\
+s_2(t_1) & s_2(t_2) & \cdots & s_2(t_N) \\
+\vdots & \vdots & \ddots & \vdots \\
+s_d(t_1) & s_d(t_2) & \cdots & s_d(t_N)
+\end{bmatrix},
 \end{align}
-The mixing matrix is taken to be
+where $N$ is the number of time steps, $d$ is the number of detectors, and $s_i$'s are independent signal sources.
+
+\subsection{Application 1: sine, square, and sawtooth waves}
+In this first example, we define the independent signal sources according to the following equations and plot them in Fig.~\ref{fig:ex1_sources}(a).
+\begin{align}
+s_1 &= \sin(2 t). \nonumber \\
+s_2 &= 2~\mathrm{sign} [\sin(3 t)]. \nonumber \\
+s_3 &= 4~\left[\frac{1}{\pi} (2 \pi t~\mathrm{mod}~2\pi) - 1\right]. \label{eq:ex1_sources}
+\end{align}
+The mixture signals $X$ (Fig.~\ref{fig:ex1_sources}(b)) that we want to apply FastICA on is constructed by the equation
+\begin{align}
+X &= AS,
+\end{align}
+where $A$ is the mixing matrix, which in this example, is set to be
 \begin{align}
 A &= \begin{bmatrix}
 1 & 1 & 1 \\
-0.5 & 2 & 1 \\
-1.5 & 1 & 2
-\end{bmatrix}.
+\frac{1}{2} & 2 & 1 \\
+\frac{3}{2} & 1 & 2
+\end{bmatrix}. \label{eq:ex1_mixing}
 \end{align}
-The result from our implementation and FastICA are shown in Fig.~\ref{fig:sklearn}.
-% \begin{figure}
-% \includegraphics{scripts/sklearn.pdf}
-% \caption{\label{fig:sklearn} FastICA results using our code and \lstinline{sklearn.decomposition.FastICA}}
-% \end{figure}
+Newton's method converages rather quickly within only four cycles for each row of $W$ as shown in Fig.~\ref{fig:ex1_dist}.
+\begin{figure}
+\includegraphics{scripts/ex1_dist.pdf}
+\caption{\label{fig:ex1_dist} The convergence criterion $||w_{n}^T w_{n-1}| - 1|$ as a function of cycle for each row of $W$.}
+\end{figure}
+The sources predicted by the algorithm as implemented in our code and in \lstinline{sklearn.decomposition.FastICA} are shown in Fig.~\ref{fig:ex1_sources}(d, e).
+Both of the results are very similar in terms of the ability to separate out independent sources.
+The main difference is the sign of the sawtooth wave because independence is up to a minus sign as discussed previously in the formalism section.
+From the predicted sources $S_{\mathrm{predicted}}$, we can verify the accuracy of FastICA results by inverting the mixing and whitening transformations and adding back the mean of each mixture to retrieve the input signals.
+\begin{align}
+(X_{\mathrm{retrived}})_{i:} &= [(W K)^{-1} S_{\mathrm{predicted}}]_{i:} + E[X_{i:}], \label{eq:ex1_retrieved}
+\end{align}
+where $K$ is the whitening transformation given by...
+The retrieved signals $X_{\mathrm{retrieved}}$ is shown to be equal to the original input signal $X$ (Fig.~\ref{fig:ex1_sources}(c)), which confirms that we can exactly reproduce the observed data from the output of ICA.
+\begin{figure*}
+\includegraphics{scripts/ex1_sources.pdf}
+\caption{\label{fig:ex1_sources}
+(a) Original sources as defined in Eq.~(\ref{eq:ex1_sources}).
+(b) Mixture signals whose mixing matrix is defined by Eq.~(\ref{eq:ex1_mixing}).
+(c) Retrieved input signals from the predicted sources according to Eq.~(\ref{eq:ex1_retrieved}).
+(d) Separated sources using our implementation of FastICA.
+(e) Separated sources using \lstinline{sklearn.decomposition.FastICA}.
+(f) Separated sources using \lstinline{sklearn.decomposition.PCA}.}
+\end{figure*}
+In some applications, such as separation of independent sound sources, we might not need to retrieve the original signal. However, this procedure becomes crucial in other applications, such as blink removals of the electroencephalogram data. The discussion of both mentioned applications follows.
+
+In this specific example, the result from \lstinline{sklearn.decomposition.PCA} is also plotted in Fig.~\ref{fig:ex1_sources}(f).
+The figure shows that PCA is not suitable for separating independent sources.
+
+\subsection{Application 2: audio source separation}
 
 
 %3) example: sound single decomposition
 %4) EEG % (https://towardsdatascience.com/independent-component-analysis-ica-a3eba0ccec35)
-%5) stock price
-
 
 \section{How to check the robustness and convergence}
 % Amari metric, ref "ELements of Statistical Learning", p.570

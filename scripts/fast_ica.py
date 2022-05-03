@@ -28,6 +28,7 @@ def whiten_svd(X):
     U, D, _ = la.svd(X, full_matrices=False)
     K = U / D
     Z = K.T @ X
+    Z *= X.shape[0]**0.5
     return Z, K.T
 
 def g(x, a1=1):
@@ -42,21 +43,19 @@ def retrieve_X_out(X, W, K, S_out):
 
 def retrieve_whiten(X, W, K, S_out):
     X_whiten = la.inv(W) @ S_out
-    print()
     return X_whiten
 
 def ica(X, cycles=200, tol=1e-5, test=False):
-    X1, K = whiten(X)
-    # X1 = center(X, divide_sd=True)
+    Z, K = whiten(X)
     nrows, ncols = X.shape
-    # K = np.eye(nrows)
     W = np.zeros((nrows, nrows))
     distances = []
     for i in range(nrows):
         w = np.random.random((nrows))
+        w /= ((w**2).sum())**0.5
         dd = []
         for _ in range(cycles):
-            w_new = (X1 * g(w.T @ X1)).mean(axis=1) - dg(w.T @ X1).mean() * w
+            w_new = (Z * g(w.T @ Z)).mean(axis=1) - dg(w.T @ Z).mean() * w
 
             if test:
                 tests.test_gram_schmidt(w_new, W, i)
