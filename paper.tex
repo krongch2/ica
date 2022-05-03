@@ -11,10 +11,9 @@
 \usepackage{bm}
 \usepackage{color}
 \frenchspacing
-%\graphicspath{/pics/}
-%\graphicspath{{~/data/KannanLu/exp623/article/}}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{hyperref}
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
@@ -92,7 +91,8 @@ Then, given the mixing matrix $\bf{A}$, we have
 and
 \begin{equation}
 \mathrm{Cov}[\mathbf{x}] = \mathbb{E}[\mathbf{As}\mathbf{s}^t\mathbf{A}^{t}]-\mathbb{E}[\mathbf{As}]\mathbb{E}[(\mathbf{As})^{t}] =  \mathbf{A}\bm{\Sigma}\mathbf{A}^{t}-\mathbf{A}\mathbf{M}\mathbf{A}^{t},
-\end{equation} where $\mathbf{M}$ and $\bm{\Sigma}$ are diagonal matrices of $\rm I\!R^{d\times d}$ with diagonal elements to be \{$\mu_{j}^{2}$\} and \{$\sigma_{j}^{2}$\}, respectively.
+\end{equation}
+where $\mathbf{M}$ and $\bm{\Sigma}$ are diagonal matrices of $\rm I\!R^{d\times d}$ with diagonal elements to be \{$\mu_{j}^{2}$\} and \{$\sigma_{j}^{2}$\}, respectively.
 Due to the scaling ambiguity, this is the same as considering normally distributed signals with unity variance. Since each column $j$ of the mixing matrix $\mathbf{A}$ can be scaled by $\sigma_{j}$, $\tilde{\mathbf{A}}_{:j} = \sigma_{j}\mathbf{A}_{:j}$, and correspondingly, the signal needs to be scaled by $1/\sigma_{j}$, $\tilde{s_{j}} = \frac{s_{j}-\mu_{j}}{\sigma_{j}}$. Then,
 \begin{equation}
 \mathrm{Cov}[\mathbf{x}] = \tilde{\mathbf{A}}\mathbf{I}_{d\times d}\tilde{\mathbf{A}}^{t}.
@@ -159,7 +159,8 @@ Another way to formulate this is to maximize the negentropy $J(u_{i})$, which is
 & = -I(\mathbf{u}) - H(\mathbf{u}) - \sum_{\mathbf{u}}p(\mathbf{u})\log p_{G}(\mathbf{u}) \\
 & = -I(\mathbf{u}) - H(\mathbf{x}) - \log(|\mathrm{det}(\mathbf{W})|) - \frac{1}{2}\log((2\pi e)^{d} \mathrm{det}(\langle \mathbf{u}, \mathbf{u}^{t} \rangle))\\
 &= -I(\mathbf{u}) - H(\mathbf{x}) - \frac{1}{2}\log((2\pi e)^{d}).
-\end{align} In the derivation, the $\mathbf{u}$ are uncorrelated so the covariance matrix is identity. Therefore, maximizing the negentropy is equivalent to minimizing mutual information in $\mathbf{u} = \mathbf{W}\mathbf{x}$~\cite{lee1998independent}.
+\end{align}
+In the derivation, the $\mathbf{u}$ are uncorrelated so the covariance matrix is identity. Therefore, maximizing the negentropy is equivalent to minimizing mutual information in $\mathbf{u} = \mathbf{W}\mathbf{x}$~\cite{lee1998independent}.
 In practice, the negentropy is difficult to evaluate so approximation schemes have been developed and have been discussed in the previous section.
 
 Lastly, for the maximum likelihood estimation approach, we want to maximize the log likelihood over all samples observed upon choosing a parametrized distribution $\hat{p}_{s}(\mathbf{w}_{i}^t\mathbf{x})$ satisfying $p(\mathbf{x}) = \prod_{i=1}^{d}\hat{p}_{s}(\mathbf{w}_{i}^t\mathbf{x})|\mathbf{W}|$ \cite{ng_cs229}. The log-likelihood is
@@ -202,7 +203,7 @@ Based on what has been discussed in the previous section, we can approximate the
 \begin{align}
 g(s_{i}) = \frac{1}{1+e^{-s_{i}}}.
 \end{align}
-Thus, the pdf is $p(s_{i}) = g'(s_{i})$.
+Thus, the pdf is $p(s_{i}) = g^{\prime}(s_{i})$.
 Notice that this pdf is super-Gaussian. This means that ICA based on this pdf works well when the distribution of original sources have heavy tails and sharp peak around center. Recall the log-likelihood (without normalization) \cite{ng_cs229},
 \begin{align}
 l(\mathbf{W}) &= \sum_{j=1}^{N} \left(\sum_{i=1}^{d}\log(\hat{p}_{s}(\mathbf{w}_{i}^{t}\mathbf{x}^{(j)}))+\log|\mathbf{W}|\right) \\
@@ -298,7 +299,7 @@ The separated sound tracks can be played and listened one by one to verify that 
 
 In Fig.~\ref{fig:ex3_ica}, we decompose the EEG signals~\cite{talebi2021eeg} from 64 detectors into 64 independent components.
 We are able to identity the 48th component to be associated with blinking signals because of the four visible peaks.
-The 48th component shows a different time structure in Fig....
+The 48th component shows a different time structure in Fig.~\ref{fig:ex3_ica}.
 We reconstruct the signals $\mathbf{x}_{\mathrm{retrived}}$ using Eq.~\ref{eq:ex1_retrieved} with the 48th component set to zero.
 The final result is shown in Fig.~\ref{fig:ex3_noblinks} in orange.
 \begin{figure*}
@@ -339,6 +340,6 @@ The ongoing research in this field include cases where the number of detectors i
 \bibliography{paper}{}
 
 \end{document}
-\grid
-\grid
-\grid
+% \grid
+% \grid
+% \grid
